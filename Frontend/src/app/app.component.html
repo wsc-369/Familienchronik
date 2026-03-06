@@ -1,0 +1,70 @@
+<div class="d-flex flex-column min-vh-100">
+  <!-- Header / Navbar -->
+  <header class="bg-primary text-white">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center py-3">
+        <!-- Logo -->
+        <a routerLink="/" class="text-white text-decoration-none h4">
+          🏢 Ahnenforschung & Familiengeschichte
+        </a>
+
+        <!-- Desktop-Navigation (immer sichtbar) -->
+        <nav class="d-none d-md-flex gap-3">
+          <a routerLink="/dashboard" class="text-white text-decoration-none">📊 Dashboard</a>
+          <a routerLink="/users" class="text-white text-decoration-none">👥 Benutzer</a>
+
+          <!-- Dropdown mit ngbDropdown (ng-bootstrap) -->
+          <div class="dropdown" ngbDropdown>
+            <button 
+              class="btn btn-outline-light dropdown-toggle"
+              ngbDropdownToggle
+              type="button">
+              Einstellungen
+            </button>
+            <div ngbDropdownMenu class="dropdown-menu">
+              <a class="dropdown-item" routerLink="/settings/profile">Profil</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" (click)="logout()">Abmelden</a>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Mobile Toggle (Hamburger) für Offcanvas -->
+        <button 
+          class="btn btn-light d-md-none"
+          (click)="openOffcanvas()">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hauptinhalt -->
+  <div class="flex-grow-1 d-flex">
+    <!-- Sidebar (nur ab lg sichtbar) -->
+    <aside class="bg-light border-end d-none d-lg-block flex-shrink-0" style="width: 250px;">
+      <nav class="nav flex-column p-3">
+        <a routerLink="/dashboard" class="nav-link text-dark">📊 Dashboard</a>
+        <a routerLink="/users" class="nav-link text-dark">👥 Benutzer</a>
+        <a routerLink="/reports" class="nav-link text-dark">📈 Reports</a>
+        <hr>
+        <a routerLink="/settings" class="nav-link text-dark">⚙️ Einstellungen</a>
+      </nav>
+    </aside>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+  <!-- ... Inhalt ... -->
+   <a>HalloS</a>
+    </div>
+
+    <!-- Content -->
+    <main class="flex-grow-1 p-3">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white text-center py-3 mt-auto">
+    &copy; {{ currentYear }} MyApp — Made with ❤️ & Angular
+  </footer>
+</div>

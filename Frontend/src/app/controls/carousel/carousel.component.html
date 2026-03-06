@@ -1,0 +1,11 @@
+<ngb-carousel *ngIf="slides.length > 0" [interval]="5000" [pauseOnHover]="true">
+  <ng-template ngbSlide *ngFor="let slide of slides">
+    <div class="carousel-slide">
+      <img [src]="slide.img" class="d-block w-100" alt="{{ slide.title }}" />
+      <div class="carousel-caption">
+        <h3>{{ slide.title }}</h3>
+        <p>{{ slide.text }}</p>
+      </div>
+    </div>
+  </ng-template>
+</ngb-carousel>

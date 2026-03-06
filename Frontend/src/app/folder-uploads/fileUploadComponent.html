@@ -1,0 +1,23 @@
+<div class="container mt-5">
+  <!-- Titelzeile -->
+  <div class="row mb-3">
+    <div class="col1">
+      <h3>Datei-Upload</h3>
+      <p class="text-muted">Ziehe deine Datei hierher oder wähle sie aus.</p>
+    </div>
+  </div>
+
+  <div class="dropzone" (drop)="onFileDropped($event)" (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)">
+    <p>Ziehe deine Datei hierher oder klicke zum Auswählen:</p>
+    <input type="file" (change)="onFileSelected($event)" />
+  </div>
+
+  <!-- Fortschrittsanzeige -->
+  @if (isUploading || uploadProgress > 0) {
+  <ngb-progressbar [value]="uploadProgress" [showValue]="true" [striped]="isUploading"
+    [type]="uploadProgress === 100 ? 'success' : 'primary'">
+    {{ uploadProgress }}%
+  </ngb-progressbar>
+  }
+</div>

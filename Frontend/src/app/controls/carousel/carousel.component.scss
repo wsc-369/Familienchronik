@@ -1,0 +1,41 @@
+
+
+
+img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  img {
+    height: 350px;
+  }
+}
+
+@media (min-width: 992px) {
+  img {
+    height: 450px;
+  }
+}
+
+.carousel-caption {
+  bottom: 10%;
+  left: 5%;
+  right: 5%;
+  background: rgba(0,0,0,0.6);
+  padding: 1rem;
+  border-radius: 8px;
+
+  h3 { font-size: 1.25rem; }
+  p { font-size: 0.9rem; margin-bottom: 0; }
+}
+
+@media (min-width: 768px) {
+  .carousel-caption {
+    left: 15%;
+    right: 15%;
+    h3 { font-size: 1.5rem; }
+    p { font-size: 1rem; }
+  }
+}

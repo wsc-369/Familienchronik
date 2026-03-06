@@ -1,0 +1,18 @@
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+// Bildhöhe mobil etwas kleiner
+.card-img-top { height: 160px; }
+
+@media (min-width: 768px) {
+  .card-img-top { height: 180px; }
+}
+
+@media (max-width: 767.98px) {
+  .d-none.d-md-flex { display: none !important; }
+}

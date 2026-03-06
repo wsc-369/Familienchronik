@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "title": "Bild 1",
+    "text": "Beschreibung für 14432f64-f7c5-4836-845b-847c40ca5e77.jpg",
+    "img": "assets/images/14432f64-f7c5-4836-845b-847c40ca5e77.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Bild 2",
+    "text": "Beschreibung für 16d0a5c8-5d8e-4b18-8d0b-86b8a88c41bb.jpg",
+    "img": "assets/images/16d0a5c8-5d8e-4b18-8d0b-86b8a88c41bb.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Bild 3",
+    "text": "Beschreibung für 1f376b82-c9ce-4bbe-81ea-4476dd3af167.jpg",
+    "img": "assets/images/1f376b82-c9ce-4bbe-81ea-4476dd3af167.jpg"
+  },
+  {
+    "id": 4,
+    "title": "Bild 4",
+    "text": "Beschreibung für 2fad402b-9352-45af-960c-edd28e2ac151.jpg",
+    "img": "assets/images/2fad402b-9352-45af-960c-edd28e2ac151.jpg"
+  },
+  {
+    "id": 5,
+    "title": "Bild 5",
+    "text": "Beschreibung für 509e471a-4e94-4bc0-8a51-c7ebdb8b4eb3.jpg",
+    "img": "assets/images/509e471a-4e94-4bc0-8a51-c7ebdb8b4eb3.jpg"
+  },
+  {
+    "id": 6,
+    "title": "Bild 6",
+    "text": "Beschreibung für 5c3f50d6-cd63-45ed-874b-a7ec49dc6c6d.jpg",
+    "img": "assets/images/5c3f50d6-cd63-45ed-874b-a7ec49dc6c6d.jpg"
+  },
+  {
+    "id": 7,
+    "title": "Bild 7",
+    "text": "Beschreibung für 5fd993a6-5775-420e-9932-15509e33cbfd.jpg",
+    "img": "assets/images/5fd993a6-5775-420e-9932-15509e33cbfd.jpg"
+  },
+  {
+    "id": 8,
+    "title": "Bild 8",
+    "text": "Beschreibung für 6638e331-f85d-4ef9-acd9-7c0a57f5c66b.jpg",
+    "img": "assets/images/6638e331-f85d-4ef9-acd9-7c0a57f5c66b.jpg"
+  },
+  {
+    "id": 9,
+    "title": "Bild 9",
+    "text": "Beschreibung für 756d11d3-f38a-45ea-968f-413279e05971.jpg",
+    "img": "assets/images/756d11d3-f38a-45ea-968f-413279e05971.jpg"
+  },
+  {
+    "id": 10,
+    "title": "Bild 10",
+    "text": "Beschreibung für 923d11d0-e2fe-4bc3-95b0-f0396f7e456d.jpg",
+    "img": "assets/images/923d11d0-e2fe-4bc3-95b0-f0396f7e456d.jpg"
+  },
+  {
+    "id": 11,
+    "title": "Bild 11",
+    "text": "Beschreibung für 9bd08e2c-9a97-406e-b985-6643c5954c71.jpg",
+    "img": "assets/images/9bd08e2c-9a97-406e-b985-6643c5954c71.jpg"
+  },
+  {
+    "id": 12,
+    "title": "Bild 12",
+    "text": "Beschreibung für b85c880b-bf57-437e-b639-64f2fc206e90.jpg",
+    "img": "assets/images/b85c880b-bf57-437e-b639-64f2fc206e90.jpg"
+  },
+  {
+    "id": 13,
+    "title": "Bild 13",
+    "text": "Beschreibung für f43faf5f-2750-44ba-b2ce-b13768d119f0.jpg",
+    "img": "assets/images/f43faf5f-2750-44ba-b2ce-b13768d119f0.jpg"
+  },
+  {
+    "id": 14,
+    "title": "Bild 14",
+    "text": "Beschreibung für slide1.jpg",
+    "img": "assets/images/slide1.jpg"
+  }
+]

@@ -1,0 +1,44 @@
+<!-- Header mit responsive Navbar -->
+<header class="bg-dark navbar navbar-expand-lg navbar-dark fixed-top"
+        [class.navbar-scrolled]="scrolled">
+
+  <div class="container px-3">
+    <a class="navbar-brand fw-bold" routerLink="/">Ahnenforschung & Familiengeschichte</a>
+
+    <!-- Hamburger (nur auf Mobil) -->
+    <button class="navbar-toggler d-lg-none"
+            type="button"
+            (click)="toggleMenu()"
+            [attr.aria-expanded]="isMenuOpen"
+            aria-controls="navbarNav"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menü: Mobile Overlay, Desktop Horizontal -->
+    <div class="collapse navbar-collapse"
+         [class.show]="isMenuOpen"
+         id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" routerLinkActive="active"
+             (click)="closeMenu()"
+             [attr.aria-current]="currentUrl === '/' ? 'page' : null">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/about" routerLinkActive="active"
+             (click)="closeMenu()">Über uns</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/contact" routerLinkActive="active"
+             (click)="closeMenu()">Kontakt</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/fileUpload" routerLinkActive="active"
+             (click)="closeMenu()">Upload</a>
+        </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
