@@ -1,0 +1,33 @@
+<div class="container mt-5">
+
+
+
+
+<div class="family-block">
+  <!-- Eltern + Partner -->
+  <div class="family-header">
+    <div class="person">{{ person.name }}</div>
+    <div *ngFor="let partner of person.partners" class="person">
+      {{ partner.name }}
+    </div>
+  </div>
+
+  <!-- Verbindungslinie nach unten -->
+  <svg *ngIf="person.children?.length" class="vertical-line">
+    <line x1="50%" y1="0" x2="50%" y2="100%" stroke="black" stroke-width="2"/>
+  </svg>
+
+  <!-- Kinder -->
+  <div class="children" *ngIf="person.children?.length">
+    <svg class="horizontal-line">
+      <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+    </svg>
+    <div class="child" *ngFor="let child of person.children">
+      <app-family-tree [person]="child"></app-family-tree>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
