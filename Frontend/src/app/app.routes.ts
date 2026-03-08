@@ -5,6 +5,7 @@ import { AboutComponent } from './about.component';
 import { FileUploadComponent } from './folder-uploads/fileUpload.component';
 import { FamilyTreeComponent } from './folder-familys/famliy-tree.component';
 import { ApplicationUserComponent } from './folder-application-users/applicationUser.component';
+import { NgbdModalFocus } from './folder-application-users/edit-User.component';
 /* import { AboutComponent } from './about/about.component'; */
 
 export const routes: Routes = [
@@ -13,5 +14,10 @@ export const routes: Routes = [
   { path: 'fileUpload', component: FileUploadComponent },
   { path: 'familyTree', component: FamilyTreeComponent },
   { path: 'appUsers', component: ApplicationUserComponent },
+  { path: 'appUsers/focus', component: NgbdModalFocus },
+
+  
+
+  
   { path: '**', redirectTo: '' }            // Fallback: alles andere auf Home
 ];

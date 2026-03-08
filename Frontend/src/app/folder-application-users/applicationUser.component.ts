@@ -1,123 +1,86 @@
-import { CommonModule } from "@angular/common";
-import { Component, signal } from "@angular/core";
-import { Router } from "@angular/router";
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
-import { FormsModule } from '@angular/forms';   // <--- wichtig!
+import { AsyncPipe, DecimalPipe } from '@angular/common';
+import { Component, inject, QueryList, TemplateRef, Type, ViewChildren } from '@angular/core';
+import { Observable } from 'rxjs';
 
-interface Country {
-    id?: number;
-    name: string;
-    flag: string;
-    area: number;
-    population: number;
-}
 
-const COUNTRIES: Country[] = [
-    {
-        name: 'Russia',
-        flag: 'f/f3/Flag_of_Russia.svg',
-        area: 17075200,
-        population: 146989754
-    },
-    {
-        name: 'France',
-        flag: 'c/c3/Flag_of_France.svg',
-        area: 640679,
-        population: 64979548
-    },
-    {
-        name: 'Germany',
-        flag: 'b/ba/Flag_of_Germany.svg',
-        area: 357114,
-        population: 82114224
-    },
-    {
-        name: 'Portugal',
-        flag: '5/5c/Flag_of_Portugal.svg',
-        area: 92090,
-        population: 10329506
-    },
-    {
-        name: 'Canada',
-        flag: 'c/cf/Flag_of_Canada.svg',
-        area: 9976140,
-        population: 36624199
-    },
-    {
-        name: 'Vietnam',
-        flag: '2/21/Flag_of_Vietnam.svg',
-        area: 331212,
-        population: 95540800
-    },
-    {
-        name: 'Brazil',
-        flag: '0/05/Flag_of_Brazil.svg',
-        area: 8515767,
-        population: 209288278
-    },
-    {
-        name: 'Mexico',
-        flag: 'f/fc/Flag_of_Mexico.svg',
-        area: 1964375,
-        population: 129163276
-    },
-    {
-        name: 'United States',
-        flag: 'a/a4/Flag_of_the_United_States.svg',
-        area: 9629091,
-        population: 324459463
-    },
-    {
-        name: 'India',
-        flag: '4/41/Flag_of_India.svg',
-        area: 3287263,
-        population: 1324171354
-    },
-    {
-        name: 'Indonesia',
-        flag: '9/9f/Flag_of_Indonesia.svg',
-        area: 1910931,
-        population: 263991379
-    },
-    {
-        name: 'Tuvalu',
-        flag: '3/38/Flag_of_Tuvalu.svg',
-        area: 26,
-        population: 11097
-    },
-    {
-        name: 'China',
-        flag: 'f/fa/Flag_of_the_People%27s_Republic_of_China.svg',
-        area: 9596960,
-        population: 1409517397
-    }
-];
+import { FormsModule } from '@angular/forms';
+import { NgbHighlight } from '@ng-bootstrap/ng-bootstrap/typeahead';
+import { NgbPagination } from '@ng-bootstrap/ng-bootstrap/pagination';
+import { UserService } from '../folder-services/user.service ';
+import { NgbdSortableHeader, SortEvent } from '../folder-directives/sortable.directive';
+import { User } from '../folder-interfaces/users';
+import { NgbdModalConfirm, NgbdModalConfirmAutofocus, NgbdModalFocus } from './edit-User.component';
+import { ConfirmDialogComponent } from '../controls/dialog/confirm-dialog.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap/modal';
+import { ToastService } from '../controls/toast/toast.service';
+
+const MODALS: { [name: string]: Type<any> } = {
+	focusFirst: NgbdModalConfirm,
+	autofocus: NgbdModalConfirmAutofocus,
+};
 
 @Component({
-    selector: 'app-applicationUser',
-    standalone: true,
-    imports: [CommonModule, NgbModule, FormsModule],
-    templateUrl: './applicationUser.component.html',
-    styleUrls: ['./applicationUser.component.css']
+	selector: 'ngbd-table-complete',
+	imports: [DecimalPipe, FormsModule, AsyncPipe, NgbHighlight, NgbdSortableHeader, NgbPagination],
+	templateUrl: './applicationUser.component.html',
+	providers: [UserService, DecimalPipe, NgbdModalFocus],
 })
 export class ApplicationUserComponent {
-    page = 1;
-    pageSize = 4;
-    collectionSize = COUNTRIES.length;
-    countries: Country[] = [];
+	users$: Observable<User[]>;
+	total$: Observable<number>;
 
-    constructor() {
-        this.refreshCountries();
-    }
+	@ViewChildren(NgbdSortableHeader) users!: QueryList<NgbdSortableHeader>;
+	@ViewChildren('successToast') successToastTemplate!: QueryList<TemplateRef<any>>;
+	@ViewChildren('errorToast') errorToastTemplate!: QueryList<TemplateRef<any>>;
+	@ViewChildren('cancelToast') cancelToastTemplate!: QueryList<TemplateRef<any>>;
 
-    refreshCountries() {
-        this.countries = COUNTRIES
-            .map((country, i) => ({ id: i + 1, ...country }))
-            .slice((this.page - 1) * this.pageSize, (this.page - 1) * this.pageSize + this.pageSize);
-    }
+	constructor(public service: UserService, private modalService: NgbModal, public toastService: ToastService) {
+		this.users$ = service.countries$;
+		this.total$ = service.total$;
+	}
 
-    onEdit(country: Country) {
-        console.log('Edit country:', country);
-        // Hier können Sie die Logik zum Bearbeiten des Landes hinzufügen, z.B. ein Modal öffnen oder zu einer Bearbeitungsseite navigieren.
-    }
+	onSort({ column, direction }: SortEvent) {
+		// resetting other headers
+		this.users.forEach((header) => {
+			if (header.sortable !== column) {
+				header.direction = '';
+			}
+		});
+
+		this.service.sortColumn = column;
+		this.service.sortDirection = direction;
+	}
+
+	onEdit(user: User) {
+		const modalRef = this.modalService.open(ConfirmDialogComponent);
+
+		// Optional: Daten an die Modal-Komponente weitergeben
+		modalRef.componentInstance.user = user;
+
+		// Ergebnis auswerten
+		modalRef.result.then(
+			(result) => {
+				console.log('Modal geschlossen mit:', result);
+				if (result === 'save') {
+					// Hier kannst du die Änderungen übernehmen
+					console.log('Speichern gedrückt für:', user);
+					
+					this.toastService.show({
+						template: this.successToastTemplate.first,
+						classname: 'bg-success text-light',
+						delay: 3000
+					});
+				}
+			},
+			(reason) => {
+				console.log('Modal abgebrochen mit:', reason);				
+					this.toastService.show({
+						template: this.cancelToastTemplate.first,
+						classname: 'bg-warning text-light',
+						delay: 3000
+					});
+			}
+		);
+	}
 }
+

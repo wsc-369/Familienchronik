@@ -1,0 +1,17 @@
+<div class="modal-header">
+    <h4 class="modal-title" id="modal-title">Die Profillöschung</h4>
+    <button type="button" class="btn-close" aria-describedby="modal-title" (click)="activeModal.close('save')"></button>
+</div>
+<div class="modal-body">
+    <p>
+        <strong>Are you sure you want to delete <span class="text-primary">"John Doe"</span> profile?</strong>
+    </p>
+    <p>
+        Alle Informationen, die mit diesem Benutzerprofil verknüpft sind, werden dauerhaft gelöscht.
+        <span class="text-danger">Diese Operation kann nicht rückgängig gemacht werden.</span>
+    </p>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="activeModal.dismiss('cancel')">Cancel</button>
+    <button type="button" class="btn btn-danger" (click)="activeModal.close('save')">Ok</button>
+</div>
