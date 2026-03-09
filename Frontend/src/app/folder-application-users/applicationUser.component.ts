@@ -1,5 +1,5 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
-import { Component, inject, QueryList, TemplateRef, Type, ViewChildren } from '@angular/core';
+import { Component, QueryList, Type, ViewChildren } from '@angular/core';
 import { Observable } from 'rxjs';
 
 
@@ -30,9 +30,6 @@ export class ApplicationUserComponent {
 	total$: Observable<number>;
 
 	@ViewChildren(NgbdSortableHeader) users!: QueryList<NgbdSortableHeader>;
-	@ViewChildren('successToast') successToastTemplate!: QueryList<TemplateRef<any>>;
-	@ViewChildren('errorToast') errorToastTemplate!: QueryList<TemplateRef<any>>;
-	@ViewChildren('cancelToast') cancelToastTemplate!: QueryList<TemplateRef<any>>;
 
 	constructor(public service: UserService, private modalService: NgbModal, public toastService: ToastService) {
 		this.users$ = service.countries$;
@@ -62,23 +59,37 @@ export class ApplicationUserComponent {
 			(result) => {
 				console.log('Modal geschlossen mit:', result);
 				if (result === 'save') {
-					// Hier kannst du die Änderungen übernehmen
-					console.log('Speichern gedrückt für:', user);
-					
 					this.toastService.show({
-						template: this.successToastTemplate.first,
-						classname: 'bg-success text-light',
-						delay: 3000
+						template: this.toastService.templates.success!
 					});
+
+					this.toastService.successSave({
+						template: this.toastService.templates.successSave!
+					});
+
+					this.toastService.errorSave({
+						template: this.toastService.templates.errorSave!
+					});
+				}
+				if (result === 'cancel') {
+					this.toastService.cancel({
+						template: this.toastService.templates.cancel!
+					});
+					/* this.toastService.show({
+						template: this.toastService.templates.success!,
+						classname: 'bg-warning text-light',
+						delay: 3000
+					}); */
+
 				}
 			},
 			(reason) => {
-				console.log('Modal abgebrochen mit:', reason);				
-					this.toastService.show({
-						template: this.cancelToastTemplate.first,
-						classname: 'bg-warning text-light',
-						delay: 3000
-					});
+				console.log('Modal abgebrochen mit:', reason);
+				this.toastService.show({
+					template: this.toastService.templates.cancel!,
+					classname: 'bg-warning text-light',
+					delay: 3000
+				});
 			}
 		);
 	}
