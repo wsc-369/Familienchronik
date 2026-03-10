@@ -1,5 +1,5 @@
-export interface User {
-userId: number;
+export  interface User {
+  userId: number;
   personId: string;
   salutation: string;
   letter: string;
@@ -7,7 +7,7 @@ userId: number;
   preName: string;
   adress: string;
   zip: number;
-  flag: string; // 👈 neues Feld für Flaggen
+    flag: string; // 👈 neues Feld für Flaggen
   town: string;
   country: string;
   email: string;

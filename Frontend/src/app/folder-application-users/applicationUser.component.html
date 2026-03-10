@@ -23,22 +23,24 @@
 			<thead>
 				<tr>
 					<th scope="col">#</th>
-					<th scope="col" sortable="name" (sort)="onSort($event)">Benutzername</th>
-					<th scope="col" sortable="area" (sort)="onSort($event)">Eintritt am</th>
-					<th scope="col" sortable="population" (sort)="onSort($event)">Beitrag am</th>
+					<th scope="col" sortable="firstName" (sort)="onSort($event)">Vorname</th>
+					<th scope="col" sortable="preName" (sort)="onSort($event)">Nachname</th>
+					<th scope="col" sortable="admissionDate" (sort)="onSort($event)">Eintritt am</th>
+					<th scope="col" sortable="paidDate" (sort)="onSort($event)">Beitrag am</th>
 				</tr>
 			</thead>
 			<tbody>
-				@for (user of users$ | async; track user.id) {
+				@for (user of users$ | async; track user.userId) {
 				<tr>
-					<th scope="row">{{ user.id }}</th>
+					<th scope="row">{{ user.userId }}</th>
 					<td>
 						<img [src]="'https://upload.wikimedia.org/wikipedia/commons/' + user.flag"
-							[alt]="'The flag of ' + user.name" class="me-2" style="width: 20px" />
-						<ngb-highlight [result]="user.name" [term]="service.searchTerm" />
+							[alt]="'The flag of ' + user.zip" class="me-2" style="width: 20px" />
+						<ngb-highlight [result]="user.firstName" [term]="service.searchTerm" />
 					</td>
-					<td><ngb-highlight [result]="user.area | number" [term]="service.searchTerm" /></td>
-					<td><ngb-highlight [result]="user.population | number" [term]="service.searchTerm" /></td>
+					<td><ngb-highlight [result]="user.preName" [term]="service.searchTerm" /></td>
+					<td><ngb-highlight [result]="user.admissionDate | date" [term]="service.searchTerm" /></td>
+					<td><ngb-highlight [result]="user.paidDate | date" [term]="service.searchTerm" /></td>
 					<td><button class="btn btn-primary" type="button" (click)="onEdit(user)">Edit</button></td>
 				</tr>
 				} @empty {

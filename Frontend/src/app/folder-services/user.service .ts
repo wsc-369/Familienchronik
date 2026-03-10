@@ -3,7 +3,7 @@ import { Injectable, PipeTransform } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 
 import { User } from "../folder-interfaces/users";
-import { COUNTRIES } from "../folder-services/countries";
+import { USERS } from "../folder-services/countries";
 
 import { DecimalPipe } from '@angular/common';
 import { debounceTime, delay, switchMap, tap } from 'rxjs/operators';
@@ -22,7 +22,7 @@ interface State {
 	sortDirection: SortDirection;
 }
 
-const compare = (v1: string | number, v2: string | number) => (v1 < v2 ? -1 : v1 > v2 ? 1 : 0);
+const compare = (v1: string | number | boolean | Date, v2: string | number | boolean | Date) => (v1 < v2 ? -1 : v1 > v2 ? 1 : 0);
 
 function sort(countries: User[], column: SortColumn, direction: string): User[] {
 	if (direction === '' || column === '') {
@@ -37,9 +37,13 @@ function sort(countries: User[], column: SortColumn, direction: string): User[] 
 
 function matches(country: User, term: string, pipe: PipeTransform) {
 	return (
-		country.name.toLowerCase().includes(term.toLowerCase()) ||
-		pipe.transform(country.area).includes(term) ||
-		pipe.transform(country.population).includes(term)
+		country.firstName.toLowerCase().includes(term.toLowerCase()) ||
+		country.preName.toLowerCase().includes(term.toLowerCase()) ||
+		country.email.toLowerCase().includes(term.toLowerCase()) ||
+		country.town.toLowerCase().includes(term.toLowerCase()) ||
+		country.country.toLowerCase().includes(term.toLowerCase()) ||
+		country.loginName.toLowerCase().includes(term.toLowerCase()) ||
+		country.remarks.toLowerCase().includes(term.toLowerCase())
 	);
 }
 
@@ -119,7 +123,7 @@ export class UserService {
 		const { sortColumn, sortDirection, pageSize, page, searchTerm } = this._state;
 
 		// 1. sort
-		let countries = sort(COUNTRIES, sortColumn, sortDirection);
+		let countries = sort(USERS, sortColumn, sortDirection);
 
 		// 2. filter
 		countries = countries.filter((country) => matches(country, searchTerm, this.pipe));

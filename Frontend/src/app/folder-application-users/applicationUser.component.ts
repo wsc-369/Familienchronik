@@ -1,4 +1,4 @@
-import { AsyncPipe, DecimalPipe } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, QueryList, Type, ViewChildren } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -21,9 +21,9 @@ const MODALS: { [name: string]: Type<any> } = {
 
 @Component({
 	selector: 'ngbd-table-complete',
-	imports: [DecimalPipe, FormsModule, AsyncPipe, NgbHighlight, NgbdSortableHeader, NgbPagination],
+	imports: [DatePipe, FormsModule, AsyncPipe, NgbHighlight, NgbdSortableHeader, NgbPagination],
 	templateUrl: './applicationUser.component.html',
-	providers: [UserService, DecimalPipe, NgbdModalFocus],
+	providers: [UserService, DecimalPipe,DatePipe, NgbdModalFocus],
 })
 export class ApplicationUserComponent {
 	users$: Observable<User[]>;

@@ -18,6 +18,9 @@
             [attr.aria-current]="currentUrl === '/' ? 'page' : null">Home</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" routerLink="/portal-cards" routerLinkActive="active" (click)="closeMenu()">Portal</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" routerLink="/about" routerLinkActive="active" (click)="closeMenu()">About</a>
         </li>
         <li class="nav-item">
@@ -29,17 +32,14 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/familyTree" routerLinkActive="active" (click)="closeMenu()">Familienbaum</a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" routerLink="/UserTableComplete" routerLinkActive="active"
-            (click)="closeMenu()">Benutzer</a>
+          <a class="nav-link" routerLink="/appUsers" routerLinkActive="active" (click)="closeMenu()">Mitglieder</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/appUsers" routerLinkActive="active" (click)="closeMenu()">Anwender</a>
-        </li>
-        <li class="nav-item">
+        <!--  <li class="nav-item">
           <a class="nav-link" routerLink="/appUsers/focus" routerLinkActive="active" (click)="closeMenu()">Benutzer
             Edit</a>
-        </li>
+        </li> -->
 
       </ul>
     </div>
