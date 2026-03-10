@@ -8,25 +8,34 @@
     </div>
     <div class="container py-4">
         <div class="row g-4">
+            @for (tile of tiles; track tile.id) {
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="card portal-card h-100 shadow-sm">
+                    <div class="card-header">
+<div class="d-flex justify-content-end">
+  <div ngbDropdown>
+    <button ngbDropdownToggle class="btn btn-link p-0">
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <div ngbDropdownMenu>
+      <button ngbDropdownItem [routerLink]="tile.route">About</button>
+      <button ngbDropdownItem>Aktion 2</button>
+    </div>
+  </div>
+</div>
 
-            <div class="col-12 col-sm-6 col-lg-4 col-xl-3" *ngFor="let tile of tiles">
 
-                <div class="card portal-card h-100 shadow-sm" 
-                    role="button" 
-                    [routerLink]="tile.route"
-                    routerLinkActive="active">
-
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                    </div>
+                    <div class="card-body text-center d-flex flex-column justify-content-center" role="button"
+                        [routerLink]="tile.route" routerLinkActive="active">
                         <i [class]="'bi ' + tile.icon + ' display-4 mb-3'"></i>
 
                         <h5 class="card-title">{{ tile.title }}</h5>
                         <p class="card-text text-muted">{{ tile.subtitle }}</p>
                     </div>
-
                 </div>
-
             </div>
-
+            }
         </div>
     </div>
 </div>
