@@ -1,0 +1,13 @@
+.user-icon-item {
+	display: flex;
+	align-items: center;
+}
+
+.user-icon {
+	opacity: 0.95;
+	cursor: default;
+}
+
+.user-icon i {
+	font-size: 1.15rem;
+}

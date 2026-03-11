@@ -26,6 +26,17 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/about" routerLinkActive="active" (click)="closeMenu()">About</a>
         </li>
+        <li class="nav-item" *ngIf="!(isAuthenticated$ | async)">
+          <a class="nav-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Login</a>
+        </li>
+        <li class="nav-item user-icon-item" *ngIf="isAuthenticated$ | async">
+          <span class="nav-link user-icon" aria-label="Eingeloggt">
+            <i class="bi bi-person-circle" aria-hidden="true"></i>
+          </span>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated$ | async">
+          <a class="nav-link" href="#" (click)="logout(); $event.preventDefault()">Logout</a>
+        </li>
         <!--  <li class="nav-item">
           <a class="nav-link" routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Kontakt</a>
         </li>

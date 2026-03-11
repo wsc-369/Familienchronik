@@ -1,0 +1,10 @@
+<div class="logout-wrapper">
+  <div class="card shadow-sm logout-card">
+    <div class="card-body text-center p-4">
+      <h3 class="mb-3">Logout</h3>
+      <p class="mb-0" *ngIf="!done">Sie werden abgemeldet...</p>
+      <p class="mb-0" *ngIf="done">Abmeldung erfolgreich. Weiterleitung zum Login...</p>
+      <a class="btn btn-link mt-3" routerLink="/login">Direkt zum Login</a>
+    </div>
+  </div>
+</div>

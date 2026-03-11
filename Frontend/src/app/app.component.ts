@@ -1,19 +1,26 @@
 import { Component } from '@angular/core';
-import { NgbPagination, NgbPaginationEllipsis, NgbPaginationFirst, NgbPaginationLast, NgbPaginationNext, NgbPaginationNumber, NgbPaginationPrevious, NgbPaginationPages, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
-import { RouterOutlet } from "@angular/router";
+import { NgbDropdownModule, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MobileMenuComponent } from "./mobile/mobile-menu.component";
+import { AuthService } from './folder-services/auth.service';
 
 @Component({
   selector: 'app-root',              // Name des HTML-Tags, über den die Komponente eingebunden wird
   standalone: true,
   imports: [
-    RouterOutlet
+    RouterOutlet,
+    RouterLink,
+    NgbDropdownModule
   ], templateUrl: './app.component.html'
 })
 export class AppComponent {
   currentYear = new Date().getFullYear();
 
-  constructor(private offcanvas: NgbOffcanvas) { }
+  constructor(
+    private readonly offcanvas: NgbOffcanvas,
+    private readonly authService: AuthService,
+    private readonly router: Router
+  ) {}
 
   openMobileMenu() {
     this.offcanvas.open(MobileMenuComponent, { position: 'start' });
@@ -24,7 +31,8 @@ export class AppComponent {
   }
 
   logout() {
-    console.log('User abgemeldet');
-    // dein Logout-Logik, z. B. Router.navigate(['/login'])
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 }

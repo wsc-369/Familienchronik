@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, signal } from "@angular/core";
 import { NavigationEnd, Router, RouterLink } from "@angular/router";
+import { AuthService } from './folder-services/auth.service';
 
 @Component({
     selector: 'app-header',
@@ -13,8 +14,10 @@ export class HeaderComponent {
     isMenuOpen = false;
     scrolled = false;
     currentUrl = '';
+    readonly isAuthenticated$;
 
-    constructor(router: Router) {
+    constructor(private readonly router: Router, private readonly authService: AuthService) {
+        this.isAuthenticated$ = this.authService.isAuthenticated$;
         router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
                 this.currentUrl = event.urlAfterRedirects;
@@ -32,5 +35,12 @@ export class HeaderComponent {
 
     closeMenu(): void {
         this.isMenuOpen = false;
+    }
+
+    logout(): void {
+        this.authService.logout().subscribe(() => {
+            this.closeMenu();
+            this.router.navigate(['/login']);
+        });
     }
 }

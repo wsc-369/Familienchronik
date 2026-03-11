@@ -1,0 +1,9 @@
+.logout-wrapper {
+  min-height: 50vh;
+  display: grid;
+  place-items: center;
+}
+
+.logout-card {
+  width: min(420px, 100%);
+}
