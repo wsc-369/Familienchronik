@@ -7,11 +7,13 @@ import { FamilyTreeComponent } from './folder-familys/famliy-tree.component';
 import { ApplicationUserComponent } from './folder-application-users/applicationUser.component';
 import { NgbdModalFocus } from './folder-application-users/edit-User.component';
 import { PortalCardsComponent } from './folder-main/portal-cards.component';
+import { ProjectsCardsComponent } from './folder-main/projects-cards.component';
 /* import { AboutComponent } from './about/about.component'; */
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },   // Startseite
   { path: 'portal-cards', component: PortalCardsComponent },
+  { path: 'project-cards', component: ProjectsCardsComponent },
   { path: 'about', component: AboutComponent },
   { path: 'fileUpload', component: FileUploadComponent },
   { path: 'familyTree', component: FamilyTreeComponent },

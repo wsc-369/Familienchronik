@@ -24,70 +24,70 @@ export class PortalCardsComponent {
   tiles: PortalTile[] = [
     {
       id: 1,
-      title: 'Ahnenforschung',
-      subtitle: 'Stammbäume, Personen, Beziehungen',
-      icon: 'bi-people',
+      title: 'Kontakt',
+      subtitle: 'Hast du Fragen oder Anregungen? Kontaktiere uns!',
+      icon: 'assets/images/icons/Contact_128x128.gif',
       route: '/ahnen'
     },
     {
       id: 2,
-      title: 'About',
-      subtitle: 'PDFs, Bilder, OCR',
-      icon: 'bi-file-earmark-text',
+      title: 'Stiftung- und Vereinsgeschichte',
+      subtitle: 'Entstehung und Entwicklung der Stiftung und des Vereins',
+      icon: 'assets/images/icons/History_128x128.gif',
       route: '/about'
     },
     {
       id: 3,
       title: 'Uploads',
-      subtitle: 'Bilder & Medien verwalten',
+      subtitle: 'Mitglidschaft, haben wir dein Interesse geweckt? Hier kannst du dich beim Verein anmelden.',
       icon: 'bi-images',
       route: '/fileUpload'
     },
     {
       id: 4,
-      title: 'Einstellungen',
-      subtitle: 'System & Benutzer',
-      icon: 'bi-gear',
+      title: 'Familienchronik',
+      subtitle: 'Familienchronik und Verwandtschaftsverbindungen',
+      icon: 'assets/images/icons/Familie_128x128.gif',
       route: '/familyTree'
     },
     {
       id: 5,
-      title: 'Einstellungen',
-      subtitle: 'System & Benutzer',
-      icon: 'bi-gear',
-      route: '/settings'
+      title: 'Projekte',
+      subtitle: 'Versschiedene Themenbereiche, an denen wir arbeiten',
+      icon: 'assets/images/icons/Projects_128x128.gif',
+      route: '/project-cards'
     },
     {
       id: 6,
-      title: 'Galerie',
-      subtitle: 'System & Benutzer',
-      icon: 'bi-gear',
+      title: 'Mediathek',
+      subtitle: 'Dokumente, Schriften, Bilder',
+      icon: 'assets/images/icons/Mediathek_128x128.gif',
       route: '/settings'
     },
     {
       id: 7,
-      title: 'Einstellungen',
-      subtitle: 'System & Benutzer',
-      icon: 'bi-gear',
+      title: 'Intranet',
+      subtitle: 'Informationen für unsere Vereinsmitglieder',
+      icon: 'assets/images/icons/Intranet_128x128.gif',
       route: '/settings'
     },
     {
       id: 8,
-      title: 'Einstellungen',
-      subtitle: 'System & Benutzer',
-      icon: 'bi-gear',
+      title: 'Exkursionen u. Veranstaltungen',
+      subtitle: 'Uasflüge, Treffen, Vorträge und andere Veranstaltungen',
+      icon: 'assets/images/icons/Exkursion_128x128.gif',
       route: '/settings'
     },
     {
       id: 9,
-      title: 'Einstellungen',
-      subtitle: 'System & Benutzer',
-      icon: 'bi-gear',
+      title: 'Projelktförderung',
+      subtitle: 'Stifung Heimat- und Familiengeschichte, Projektförderung',
+      icon: 'assets/images/icons/Logo_Stiftung_HUF_weiss.gif',
       route: '/settings'
     },
     {
       id: 10,
-      title: 'Einstellungen',
+      title: 'xxEinstellungen',
       subtitle: 'System & Benutzer',
       icon: 'bi-gear',
       route: '/settings'
