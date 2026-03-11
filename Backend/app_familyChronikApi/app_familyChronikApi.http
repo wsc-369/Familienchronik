@@ -1,0 +1,6 @@
+@app_familyChronikApi_HostAddress = http://localhost:5067
+
+GET {{app_familyChronikApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
