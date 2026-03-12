@@ -45,7 +45,6 @@ secrets.json
 *.mdf
 *.ldf
 *.ndf
-Migrations/
 
 # Testergebnisse
 [Tt]est[Rr]esult*/
@@ -69,3 +68,5 @@ $RECYCLE.BIN/
 
 # Resources
 /resources
+
+

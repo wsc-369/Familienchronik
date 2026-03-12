@@ -1,0 +1,79 @@
+﻿
+-- Studio 2022
+-- Framwork ASP.NET 6 Core
+
+-- ---------------------------CONNECTION STING----------------------------
+-- DB connectionsteing: "Server=DESKTOP-39TVB67;Database=wsc_chronik;Trusted_Connection=True;MultipleActiveResultSets=true;"
+-- --> Wichtig: Dieser wir bei jeder Migration überschieben und "MultipleActiveResultSets=true" muss wieder gesetzt werden.
+-- -->Möglich dass "TrustServerCertificate" auch gesezt werden muss damit die Migration läuft.
+--    connectionsteing: "Server=DESKTOP-39TVB67;Database=ahnen_chronik;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true;"           
+
+-- ---------------------------MIGRATION----------------------------
+-- 1. Solution C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData.sln straten.
+--    Muss unbedingt in einer separaten Solution gestertet werden, da sonst die Models auch in andere Projekte angelegt werden.
+
+-- 2.  DB connectionsteing: "Server=DESKTOP-39TVB67;Database=wsc_chronik;Trusted_Connection=True;MultipleActiveResultSets=true;" prüfen
+--                          "Server=MSSQL3.webland.ch;Database=wsc_chronik;password=xchroniksql2010; user id=wsc_chronik; integrated security=False;MultipleActiveResultSets=true;"
+--     Ist es die Ziel Datenbank
+
+-- 3. Migration DB-First (Variante 1)
+-- 3a. Package Manager Console starten
+--     OutputDir: Models/DB (Hier werden dann die Models angelegt oder geändert)
+-- 3b. PM> Scaffold-DbContext "Server=DESKTOP-39TVB67;Database=wsc_chronik;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models/DB -force
+
+-- 4x. Migration DB-First mit  Spez OutputDir (Variante 2)
+--    Dies ist der Weg falls die komplette Solution gestartet wird. Ist machbar aber besser nur dieses Projekt starten und Variante 1 machen. 
+--    Scaffold-DbContext "Server=DESKTOP-39TVB67;Database=wsc_chronik;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir ../appAhnenforschungData/Models/DB -force
+--    Anschliessend den Namespase noch anpassen
+
+-- 5. DB connectionstring anapssen: Dieser wir bei jeder Migration überschieben und "MultipleActiveResultSets=true" muss wieder gesetzt werden.
+--      DB connectionsteing: "Server=DESKTOP-39TVB67;Database=wsc_chronik;Trusted_Connection=True;MultipleActiveResultSets=true;"
+
+-- 10. Publish
+	FolderProfile
+	Configuration: Release
+	Target Framework: net6.0 --> evtl. net8.0 anpassen
+	Deployment Mode:Self-contained
+	Target Runtime: win-x64
+
+-- --------------------------------------------------------------
+Hier ein konkretes Beispiel, wie du in ASP.NET Core ein selbstsigniertes Zertifikat einbindest, 
+damit deine API lokal über HTTPS läuft:
+-- 1. Zertifikat erstellen und vertrauen (nur einmal ausführen)
+Windows (PowerShell mit dotnet dev-certs):
+dotnet dev-certs https --clean
+dotnet dev-certs https --trust
+dotnet dev-certs https --check
+
+Zertifikate manuell löschen (Windows)
+1. Zertifikatverwaltung öffnen
+
+	Drücke Win + R
+	Gib certmgr.msc ein und bestätige mit Enter
+	Es öffnet sich die Zertifikatverwaltung für den aktuellen Benutzer.
+2. Persönliche Zertifikate prüfen
+	Navigiere zu Zertifikate – Aktueller Benutzer → Persönlich → Zertifikate
+	Suche nach Einträgen mit dem Aussteller "ASP.NET Core HTTPS development certificate".
+	Rechtsklick → Löschen.
+
+3. Vertrauenswürdige Stammzertifizierungsstellen prüfen
+	Navigiere zu Zertifikate – Aktueller Benutzer → Vertrauenswürdige Stammzertifizierungsstellen → Zertifikate
+	Auch hier nach "ASP.NET Core HTTPS development certificate" suchen.
+	Rechtsklick → Löschen.
+
+4. Neues Zertifikat erstellen (falls benötigt) 
+	Danach kannst du wieder ein neues Zertifikat erstellen und vertrauen:
+	dotnet dev-certs https --trust
+
+
+
+---------------------------------------------------------------------------------------------------
+Mirgration Befehle CLI (Command Line Interface):
+dotnet ef migrations add InitialCreate --context MyDatabaseContext
+dotnet ef database update --context MyDatabaseContext
+dotnet ef migrations remove --context MyDatabaseContext
+
+%USERPROFILE%\Documents\IISExpress\config\applicationhost.config
+
+
+

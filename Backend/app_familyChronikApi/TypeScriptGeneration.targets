@@ -1,0 +1,11 @@
+<Project>
+  <!-- Generate TypeScript after successful build -->
+  <Target Name="NSwag" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <Message Text="Generating TypeScript interfaces from OpenAPI..." Importance="high" />
+    
+    <Exec Command="dotnet tool restore" ContinueOnError="true" />
+    <Exec Command="nswag run nswag.json" ContinueOnError="true" />
+    
+    <Message Text="TypeScript generation completed!" Importance="high" />
+  </Target>
+</Project>

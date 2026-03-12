@@ -18,17 +18,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.13" />
-	
-		
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
-	
-		
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.13">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.13" />
     <PackageReference Include="Microsoft.ML" Version="5.0.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="14.2.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.12.46" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
   </ItemGroup>
@@ -39,7 +36,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\core50\appAhnenforschungData\appAhnenforschungData.csproj" />
+    <ProjectReference Include="..\appAhnenforschungData\appAhnenforschungData.csproj" />
   </ItemGroup>
+
+  <!-- Import TypeScript generation targets -->
+  <Import Project="TypeScriptGeneration.targets" />
 
 </Project>

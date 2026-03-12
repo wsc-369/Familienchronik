@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, LoginResponse } from './auth.models';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly tokenStorageKey = 'auth.jwt';
-  private readonly authBaseUrl = '/api/auth';
+  private readonly authBaseUrl = environment.apiUrl;
   private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -14,7 +15,7 @@ export class AuthService {
   constructor(private readonly http: HttpClient) {}
 
   login(payload: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.authBaseUrl}/login`, payload).pipe(
+    return this.http.post<LoginResponse>(`${this.authBaseUrl}/Login`, payload).pipe(
       tap((response) => {
         if (response?.accessToken) {
           this.setToken(response.accessToken);

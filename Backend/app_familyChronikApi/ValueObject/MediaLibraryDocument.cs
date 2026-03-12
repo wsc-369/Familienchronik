@@ -34,7 +34,7 @@ namespace ValueObject
 
     public ContentTemplateLink ContentTemplateLink { get; set; } = new ContentTemplateLink();
 
-    public ICollection<DocumentTopic> DocumentTopics { get; set; } = new List<DocumentTopic>();
+ //   public ICollection<DocumentTopic> DocumentTopics { get; set; } = new List<DocumentTopic>(); // TODO: Es wird die Entity verwendet, da die ValueObject-Collection nicht funktioniert. Es muss noch geprüft werden, ob das so bleibt oder ob es eine andere Lösung gibt.
     //ContentTemplateLink { get; set; } = new ContentTemplateLink();
 
     // public ICollection<DocumentTopic> DocumentTopics { get; set; } = new List<DocumentTopic>();

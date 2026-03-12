@@ -1,0 +1,15 @@
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\bin\Release\net5.0\appAhnenforschungData.deps.json
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\bin\Release\net5.0\appAhnenforschungData.runtimeconfig.json
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\bin\Release\net5.0\appAhnenforschungData.runtimeconfig.dev.json
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\bin\Release\net5.0\appAhnenforschungData.dll
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\bin\Release\net5.0\ref\appAhnenforschungData.dll
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\bin\Release\net5.0\appAhnenforschungData.pdb
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.GeneratedMSBuildEditorConfig.editorconfig
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.AssemblyInfoInputs.cache
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.AssemblyInfo.cs
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.csproj.CoreCompileInputs.cache
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.dll
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\ref\appAhnenforschungData.dll
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.pdb
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.genruntimeconfig.cache
+C:\Work\app\app_angularCore\Ahnenforschung\core50\appAhnenforschungData\obj\Release\net5.0\appAhnenforschungData.csproj.AssemblyReference.cache
