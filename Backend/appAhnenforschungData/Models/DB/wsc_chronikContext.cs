@@ -50,12 +50,7 @@ namespace appAhnenforschungData.Models.DB
     {
       if (!optionsBuilder.IsConfigured)
       {
-
-        //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["BloggingDatabase"].ConnectionString);
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        //optionsBuilder.UseSqlServer("Server=MSSQL3.webland.ch;Database=wsc_chronik;password=xchroniksql2010; user id=wsc_chronik; integrated security=False;MultipleActiveResultSets=true;");
-        optionsBuilder.UseSqlServer("Server=DESKTOP-39TVB67;Database=ahnen_chronik;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true;");
-        // 
+       optionsBuilder.UseSqlServer("Server=DESKTOP-39TVB67;Database=ahnen_chronik;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true;");
       }
     }
 
