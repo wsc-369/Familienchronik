@@ -43,7 +43,7 @@ namespace app_familyBackend.Controllers
     [HttpGet("getDialectFilteredWords/{word}")]
     public async Task<IEnumerable<DialectWord>> getDialectFilteredWords(string word, CancellationToken cancellationToken)
     {
-      return await _reader.GetDialectWords(onlyActive: true, token: cancellationToken);
+      return await _reader.getDialectFilteredWords(word, token: cancellationToken);
     }
 
 

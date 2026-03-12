@@ -11,6 +11,8 @@ import { LogoutComponent } from './folder-auth/logout.component';
 import { ForgotPasswordComponent } from './folder-auth/forgot-password.component';
 import { ChangePasswordComponent } from './folder-auth/change-password.component';
 import { authGuard } from './folder-services/auth.guard';
+import { DialectWordsComponent } from './folder-dialect-words/dialect-words.component';
+import { MediaLibraryDocumentsComponent } from './folder-media-library-documents/media-library-documents.component';
 /* import { AboutComponent } from './about/about.component'; */
 
 export const routes: Routes = [
@@ -26,6 +28,8 @@ export const routes: Routes = [
   { path: 'fileUpload', component: FileUploadComponent, canActivate: [authGuard] },
   { path: 'familyTree', component: FamilyTreeComponent, canActivate: [authGuard] },
   { path: 'appUsers', component: ApplicationUserComponent, canActivate: [authGuard] },
+  { path: 'dialect-words', component: DialectWordsComponent, canActivate: [authGuard] },
+  { path: 'media-library-documents', component: MediaLibraryDocumentsComponent, canActivate: [authGuard] },
 
   { path: '**', redirectTo: '' }            // Fallback: alles andere auf Home
 ];

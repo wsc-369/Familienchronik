@@ -1,0 +1,66 @@
+<div class="container-fluid dialect-words py-4 px-3 px-md-4">
+  <div class="row mb-3">
+    <div class="col">
+      <h3 class="mb-1">Dialektwörter</h3>
+      <p class="text-muted mb-0">Suche in Titel und Beschreibung, inklusive Audio je Eintrag.</p>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-12 col-md-8 col-xl-6">
+      <label for="dialectword-search" class="form-label">Suche</label>
+      <input
+        id="dialectword-search"
+        type="text"
+        class="form-control"
+        placeholder="Titel oder Beschreibung durchsuchen"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchTermChange($event)"
+      />
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="alert alert-info" role="status">Lade Dialektwörter...</div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  }
+
+  @if (!isLoading && !errorMessage) {
+    <div class="row g-3 g-md-4">
+      @for (word of words; track trackByWordId($index, word)) {
+        <div class="col-12 col-md-6 col-lg-4">
+          <article class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="dialect-card-head d-flex flex-column flex-md-row justify-content-between gap-2 mb-1">
+                <h5 class="card-title mb-0 dialect-title">{{ word.title }}</h5>
+                <span class="badge text-bg-secondary align-self-start align-self-md-center text-wrap dialect-badge">
+                  {{ word.personFamilyName }} {{ word.personFirstname }}
+                </span>
+              </div>
+
+              <p class="card-text mb-2" [innerHTML]="word.description"></p>
+
+              @if (word.voice) {
+                <div class="mt-auto pt-1">
+                <audio class="w-100" controls preload="none">
+                  <source [src]="resolveVoiceUrl(word.voice)" />
+                  Ihr Browser unterstützt kein Audio-Element.
+                </audio>
+                </div>
+              } @else {
+                <p class="text-muted mb-0">Kein Audio vorhanden.</p>
+              }
+            </div>
+          </article>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="alert alert-light border mb-0">Keine Dialektwörter gefunden.</div>
+        </div>
+      }
+    </div>
+  }
+</div>

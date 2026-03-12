@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("appAhnenforschungData")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42d494d1bb252eb154130852ea00c91e7daed1e4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3887579e37824ab8722b7afccc6746d6dc5d5c25")]
 [assembly: System.Reflection.AssemblyProductAttribute("appAhnenforschungData")]
 [assembly: System.Reflection.AssemblyTitleAttribute("appAhnenforschungData")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

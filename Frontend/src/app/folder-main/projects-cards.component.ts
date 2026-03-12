@@ -30,10 +30,10 @@ export class ProjectsCardsComponent {
     },
     {
       id: 2,
-      title: 'Ortschronik',
+      title: 'Dialektwörter',
       subtitle: 'Meilensteine und Ereignisse der Region strukturiert erfassen.',
       icon: 'assets/images/icons/History_128x128.gif',
-      route: '/project-cards'
+      route: '/dialect-words'
     },
     {
       id: 3,

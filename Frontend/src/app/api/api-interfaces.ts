@@ -14,7 +14,7 @@ export interface Address {
     active?: boolean;
 }
 
-export interface LoginRequest {
+/* export interface LoginRequest {
     username?: string;
     password?: string;
 }
@@ -31,7 +31,7 @@ export interface AuthUser {
     userName: string;
     email: string;
     roles: string[];
-}
+} */
 
 export interface ForgotPasswordRequest {
     email: string;

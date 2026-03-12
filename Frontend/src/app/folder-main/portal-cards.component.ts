@@ -62,7 +62,7 @@ export class PortalCardsComponent {
       title: 'Mediathek',
       subtitle: 'Dokumente, Schriften, Bilder',
       icon: 'assets/images/icons/Mediathek_128x128.gif',
-      route: '/settings'
+      route: '/media-library-documents'
     },
     {
       id: 7,
