@@ -1,7 +1,7 @@
+ 
 <!-- Header mit responsive Navbar -->
 <header class="bg-dark navbar navbar-expand-lg navbar-dark fixed-top" [class.navbar-scrolled]="scrolled">
-
-  <div class="container px-3">
+  <div class="container-fluid px-3">
     <a class="navbar-brand fw-bold" routerLink="/">Ahnenforschung & Familiengeschichte</a>
 
     <!-- Hamburger (nur auf Mobil) -->
@@ -28,6 +28,9 @@
         </li>
         <li class="nav-item" *ngIf="isAuthenticated$ | async">
           <a class="nav-link" routerLink="/dialect-words" routerLinkActive="active" (click)="closeMenu()">Dialektwörter</a>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated$ | async">
+          <a class="nav-link" routerLink="/content-templates" routerLinkActive="active" (click)="closeMenu()">ContentTemplates</a>
         </li>
         <li class="nav-item" *ngIf="!(isAuthenticated$ | async)">
           <a class="nav-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Login</a>

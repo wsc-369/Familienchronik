@@ -27,9 +27,6 @@ export class HomeComponent {
     });
   }
 
-
-  
-
   @HostListener('window:scroll', [])
   onScroll(): void {
     this.scrolled = window.scrollY > 60;

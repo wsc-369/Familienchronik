@@ -1,0 +1,11 @@
+.list-group-item.active {
+  border-color: #0d6efd;
+}
+
+.card-header strong {
+  font-size: 0.95rem;
+}
+
+textarea.form-control {
+  resize: vertical;
+}
