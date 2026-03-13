@@ -1,0 +1,132 @@
+<div class="container-fluid py-5 px-3 px-md-4">
+  <div class="row mb-3">
+    <div class="col">
+      <h3 class="mb-1">PersonPortraits verwalten</h3>
+      <p class="text-muted mb-0">Liste, Bearbeiten und Erfassen von Portrait-Daten.</p>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success" role="status">{{ successMessage }}</div>
+  }
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Portraitliste</strong>
+          <button type="button" class="btn btn-sm btn-primary" (click)="onCreateNew()">Neu</button>
+        </div>
+        <div class="card-body p-0">
+          @if (isLoading) {
+            <div class="p-3">Lade Daten...</div>
+          } @else {
+            <div class="list-group list-group-flush">
+              @for (item of portraits; track trackByPortraitId($index, item)) {
+                <button
+                  type="button"
+                  class="list-group-item list-group-item-action"
+                  [class.active]="item.id === selectedPortrait.id"
+                  (click)="onSelectPortrait(item)">
+                  <div class="fw-semibold">{{ item.title || 'Ohne Titel' }}</div>
+                  <small class="opacity-75">PDF: {{ item.pdfName || '-' }}</small>
+                </button>
+              } @empty {
+                <div class="p-3 text-muted">Keine PersonPortraits vorhanden.</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <form class="card shadow-sm" (ngSubmit)="onSavePortrait()">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>{{ selectedPortrait.id ? 'Portrait bearbeiten' : 'Neues Portrait' }}</strong>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success btn-sm" [disabled]="isSaving">Speichern</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" (click)="onDeletePortrait()" [disabled]="isSaving || !selectedPortrait.id">
+              Loeschen
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="row g-3 mb-2">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Portrait ID</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.id" name="portrait-id" placeholder="wird beim Anlegen automatisch gesetzt" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Titel</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.title" name="portrait-title" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">PdfName</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.pdfName" name="portrait-pdfName" />
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="selectedPortrait.active" name="portrait-active" id="portrait-active" />
+                <label class="form-check-label" for="portrait-active">Aktiv</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Bemerkung</label>
+              <textarea class="form-control" rows="3" [(ngModel)]="selectedPortrait.remarks" name="portrait-remarks"></textarea>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">CreateDate</label>
+              <input class="form-control" [value]="selectedPortrait.createDate | date:'yyyy-MM-dd HH:mm:ss'" readonly />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">UpdateDate</label>
+              <input class="form-control" [value]="selectedPortrait.updateDate | date:'yyyy-MM-dd HH:mm:ss'" readonly />
+            </div>
+          </div>
+
+          <hr />
+
+          <h5 class="mb-3">Person</h5>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Person.Id</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.person.Id" name="person-id" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Person.personId</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.person.personId" name="person-personId" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Vorname</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.person.firstName" name="person-firstName" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Nachname</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.person.familyName" name="person-familyName" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">GenderStatus</label>
+              <input class="form-control" type="number" [(ngModel)]="selectedPortrait.person.genderStatus" name="person-genderStatus" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">GenderStatusName</label>
+              <input class="form-control" [(ngModel)]="selectedPortrait.person.genderStatusName" name="person-genderStatusName" />
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="selectedPortrait.person.active" name="person-active" id="person-active" />
+                <label class="form-check-label" for="person-active">Person aktiv</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -14,6 +14,8 @@ import { authGuard } from './folder-services/auth.guard';
 import { DialectWordsComponent } from './folder-dialect-words/dialect-words.component';
 import { MediaLibraryDocumentsComponent } from './folder-media-library-documents/media-library-documents.component';
 import { ContentTemplatesComponent } from './folder-content-templates/content-templates.component';
+import { AddressesComponent } from './folder-addresses/addresses.component';
+import { PersonPortraitsComponent } from './folder-person-portraits/person-portraits.component';
 /* import { AboutComponent } from './about/about.component'; */
 
 export const routes: Routes = [
@@ -32,6 +34,8 @@ export const routes: Routes = [
   { path: 'dialect-words', component: DialectWordsComponent, canActivate: [authGuard] },
   { path: 'media-library-documents', component: MediaLibraryDocumentsComponent, canActivate: [authGuard] },
   { path: 'content-templates', component: ContentTemplatesComponent, canActivate: [authGuard] },
+  { path: 'addresses', component: AddressesComponent, canActivate: [authGuard] },
+  { path: 'person-portraits', component: PersonPortraitsComponent, canActivate: [authGuard] },
 
   { path: '**', redirectTo: '' }            // Fallback: alles andere auf Home
 ];

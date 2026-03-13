@@ -1,0 +1,7 @@
+.list-group-item.active {
+  border-color: #0d6efd;
+}
+
+textarea.form-control {
+  resize: vertical;
+}

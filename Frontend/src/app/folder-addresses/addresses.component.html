@@ -1,0 +1,148 @@
+<div class="container-fluid py-5 px-3 px-md-4">
+  <div class="row mb-3">
+    <div class="col">
+      <h3 class="mb-1">Adressen verwalten</h3>
+      <p class="text-muted mb-0">Liste, Bearbeiten und Erfassen von Adressdaten.</p>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success" role="status">{{ successMessage }}</div>
+  }
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Adressliste</strong>
+          <button type="button" class="btn btn-sm btn-primary" (click)="onCreateNew()">Neu</button>
+        </div>
+        <div class="card-body p-0">
+          @if (isLoading) {
+            <div class="p-3">Lade Daten...</div>
+          } @else {
+            <div class="list-group list-group-flush">
+              @for (item of addresses; track trackByAddressId($index, item)) {
+                <button
+                  type="button"
+                  class="list-group-item list-group-item-action"
+                  [class.active]="item.id === selectedAddress.id"
+                  (click)="onSelectAddress(item)">
+                  <div class="fw-semibold">{{ item.fullAddress || ((item.street || '') + ' ' + (item.houseNr || '')).trim() || 'Ohne Adresse' }}</div>
+                  <small class="opacity-75">{{ item.zip }} {{ item.town }}</small>
+                </button>
+              } @empty {
+                <div class="p-3 text-muted">Keine Adressen vorhanden.</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <form class="card shadow-sm" (ngSubmit)="onSaveAddress()">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>{{ selectedAddress.id ? 'Adresse bearbeiten' : 'Neue Adresse' }}</strong>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success btn-sm" [disabled]="isSaving">Speichern</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" (click)="onDeleteAddress()" [disabled]="isSaving || !selectedAddress.id">
+              Loeschen
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="row g-3 mb-2">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Address ID</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.id" name="address-id" placeholder="wird beim Anlegen automatisch gesetzt" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">PersonRefId</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.personRefId" name="address-personRefId" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Strasse</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.street" name="address-street" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Hausnummer</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.houseNr" name="address-houseNr" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">PLZ</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.zip" name="address-zip" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Ort</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.town" name="address-town" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Land</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.country" name="address-country" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Vollstaendige Adresse</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.fullAddress" name="address-fullAddress" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">OrderNr</label>
+              <input class="form-control" type="number" [(ngModel)]="selectedAddress.orderNr" name="address-orderNr" />
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="selectedAddress.active" name="address-active" id="address-active" />
+                <label class="form-check-label" for="address-active">Aktiv</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Beschreibung</label>
+              <textarea class="form-control" rows="2" [(ngModel)]="selectedAddress.description" name="address-description"></textarea>
+            </div>
+          </div>
+
+          <hr />
+
+          <h5 class="mb-3">Person</h5>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Person.Id</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.person.Id" name="person-id" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Person.personId</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.person.personId" name="person-personId" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Vorname</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.person.firstName" name="person-firstName" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Nachname</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.person.familyName" name="person-familyName" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">GenderStatus</label>
+              <input class="form-control" type="number" [(ngModel)]="selectedAddress.person.genderStatus" name="person-genderStatus" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">GenderStatusName</label>
+              <input class="form-control" [(ngModel)]="selectedAddress.person.genderStatusName" name="person-genderStatusName" />
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="selectedAddress.person.active" name="person-active" id="person-active" />
+                <label class="form-check-label" for="person-active">Person aktiv</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

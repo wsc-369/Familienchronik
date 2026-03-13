@@ -1,7 +1,7 @@
 
 export interface Address {
     id?: string;
-    personId?: string;
+    person: Person;
     personRefId?: string | undefined;
     street?: string | undefined;
     houseNr?: string | undefined;
@@ -157,7 +157,7 @@ export interface ParentChild {
 
 export interface PersonPortrait {
     id: string;
-    personId: string;
+    person: Person;
     title?: string;
     pdfName?: string;
     remarks?: string;
