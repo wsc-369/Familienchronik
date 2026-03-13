@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, of } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, takeUntil } from 'rxjs/operators';
-import { MediaLibraryDocument } from '../api/api-interfaces';
+import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { MediaLibraryDocument, SearchResult } from '../api/api-interfaces';
 import { MediaLibraryDocumentService } from '../folder-services/media-library-document.service';
 import { environment } from '../../environments/environment';
 
@@ -17,14 +17,18 @@ import { environment } from '../../environments/environment';
 export class MediaLibraryDocumentsComponent implements OnInit, OnDestroy {
   documents: MediaLibraryDocument[] = [];
   searchTerm = '';
+  suggestions: string[] = [];
   isLoading = false;
   errorMessage = '';
+  totalCount = 0;
+  pageIndex = 0;
+  readonly pageSize = 10;
 
   private readonly backendBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
   private readonly searchTerm$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private readonly mediaLibraryDocumentService: MediaLibraryDocumentService) {}
+  constructor(private readonly mediaLibraryDocumentService: MediaLibraryDocumentService) { }
 
   ngOnInit(): void {
     this.setupSearch();
@@ -43,6 +47,39 @@ export class MediaLibraryDocumentsComponent implements OnInit, OnDestroy {
 
   onSearchTermChange(term: string): void {
     this.searchTerm$.next(term);
+  }
+
+  onSuggestionClick(suggestion: string): void {
+    this.searchTerm = suggestion;
+    this.pageIndex = 0;
+    this.onSearchTermChange(suggestion);
+    this.suggestions = [];
+  }
+
+  onNextPage(): void {
+    if (!this.canGoNext) {
+      return;
+    }
+
+    this.pageIndex += 1;
+    this.onSearchTermChange(this.searchTerm);
+  }
+
+  onPreviousPage(): void {
+    if (!this.canGoPrevious) {
+      return;
+    }
+
+    this.pageIndex -= 1;
+    this.onSearchTermChange(this.searchTerm);
+  }
+
+  get canGoPrevious(): boolean {
+    return this.pageIndex > 0;
+  }
+
+  get canGoNext(): boolean {
+    return (this.pageIndex + 1) * this.pageSize < this.totalCount;
   }
 
   resolveDocumentUrl(path: string | null | undefined): string {
@@ -69,19 +106,30 @@ export class MediaLibraryDocumentsComponent implements OnInit, OnDestroy {
         debounceTime(300),
         map((term) => term.trim()),
         distinctUntilChanged(),
+        tap((term) => {
+          if (term.length >= 2) {
+            this.mediaLibraryDocumentService
+              .getSuggestions(term)
+              .pipe(
+                catchError(() => of([] as string[])),
+                takeUntil(this.destroy$)
+              )
+              .subscribe((list) => {
+                this.suggestions = list;
+              });
+          } else {
+            this.suggestions = [];
+          }
+        }),
         switchMap((term) => {
           this.isLoading = true;
           this.errorMessage = '';
 
-          const request$ = term
-            ? this.mediaLibraryDocumentService.getMediaLibraryFilteredDocuments(term)
-            : this.mediaLibraryDocumentService.getMediaLibraryDocuments();
-
-          return request$.pipe(
-            map((result) => result ?? []),
+          return this.mediaLibraryDocumentService.searchDocuments(term, this.pageIndex, this.pageSize).pipe(
+            map((result) => result ?? ({ results: [], totalCount: 0, pageIndex: this.pageIndex, pageSize: this.pageSize } as SearchResult)),
             catchError(() => {
               this.errorMessage = 'Dokumente konnten nicht geladen werden.';
-              return of([] as MediaLibraryDocument[]);
+              return of({ results: [], totalCount: 0, pageIndex: this.pageIndex, pageSize: this.pageSize } as SearchResult);
             }),
             finalize(() => {
               this.isLoading = false;
@@ -90,8 +138,10 @@ export class MediaLibraryDocumentsComponent implements OnInit, OnDestroy {
         }),
         takeUntil(this.destroy$)
       )
-      .subscribe((documents) => {
-        this.documents = documents;
+      .subscribe((searchResult) => {
+        this.documents = searchResult.results ?? [];
+        this.totalCount = searchResult.totalCount ?? 0;
+        this.pageIndex = searchResult.pageIndex ?? this.pageIndex;
       });
   }
 }

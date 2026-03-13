@@ -17,6 +17,31 @@
         [(ngModel)]="searchTerm"
         (ngModelChange)="onSearchTermChange($event)"
       />
+
+      @if (suggestions.length > 0) {
+        <div class="list-group mt-2">
+          @for (suggestion of suggestions; track suggestion) {
+            <button
+              type="button"
+              class="list-group-item list-group-item-action"
+              (click)="onSuggestionClick(suggestion)">
+              {{ suggestion }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-12 col-md-8 col-xl-6 d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-outline-secondary" [disabled]="!canGoPrevious || isLoading" (click)="onPreviousPage()">
+        Zurueck
+      </button>
+      <button type="button" class="btn btn-outline-secondary" [disabled]="!canGoNext || isLoading" (click)="onNextPage()">
+        Weiter
+      </button>
+      <span class="text-muted small">Seite {{ pageIndex + 1 }} · Treffer {{ totalCount }}</span>
     </div>
   </div>
 

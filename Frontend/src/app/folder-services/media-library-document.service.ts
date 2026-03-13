@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { MediaLibraryDocument } from '../api/api-interfaces';
+import { SearchResult } from '../api/api-interfaces';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -9,11 +9,18 @@ export class MediaLibraryDocumentService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getMediaLibraryDocuments(): Observable<MediaLibraryDocument[]> {
-    return this.http.get<MediaLibraryDocument[]>(`${environment.apiUrl}/Document/SearchDocuments`);
+  searchDocuments(term: string, pageIndex = 0, pageSize = 10): Observable<SearchResult> {
+    const params = new HttpParams()
+      .set('searchTerm', term)
+      .set('pageIndex', pageIndex.toString())
+      .set('pageSize', pageSize.toString());
+
+    return this.http.get<SearchResult>(`${environment.apiUrl}/Document/SearchDocuments`, { params });
   }
 
-  getMediaLibraryFilteredDocuments(term: string): Observable<MediaLibraryDocument[]> {
-    return this.http.get<MediaLibraryDocument[]>(`${environment.apiUrl}/Document/GetSearchSuggestions/${term}`);
+  getSuggestions(term: string): Observable<string[]> {
+    const params = new HttpParams().set('partialTerm', term);
+    return this.http.get<string[]>(`${environment.apiUrl}/Document/GetSearchSuggestions`, { params });
   }
 }
+
