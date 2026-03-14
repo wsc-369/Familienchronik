@@ -81,7 +81,20 @@ export class ContentTemplatesComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.contentTemplateService.uploadContentTemplateImage(image.id, file)
+    this.contentTemplateService.uploadContentTemplateImage({
+      id: image.id,
+      file,
+      meta: {
+        contentTemplateId: image.contentTemplateId,
+        title: image.title ?? '',
+        subTitle: image.subTitle ?? '',
+        imageName: image.imageName ?? '',
+        imageOriginalName: image.imageOriginalName ?? '',
+        description: image.description ?? '',
+        sortNo: image.sortNo ?? 0,
+        active: !!image.active
+      }
+    })
       .pipe(finalize(() => { this.uploadingImageId = null; }))
       .subscribe({
         next: (result) => {
@@ -115,6 +128,14 @@ export class ContentTemplatesComponent implements OnInit, OnDestroy {
     }
 
     this.pendingDocumentFiles[document.id] = file;
+
+    const fileName = file.name?.trim() ?? '';
+    const fileNameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
+
+    document.filePath = fileName || document.filePath;
+    document.contentType = file.type || document.contentType;
+    document.title = document.title?.trim() ? document.title : (fileNameWithoutExtension || fileName);
+    document.keywords = document.keywords?.trim() ? document.keywords : (fileNameWithoutExtension || fileName);
   }
 
   uploadSelectedDocument(linkIndex: number, documentIndex: number): void {
@@ -133,7 +154,24 @@ export class ContentTemplatesComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.contentTemplateService.uploadContentTemplateDocument(document.id, file)
+    this.contentTemplateService.uploadContentTemplateDocument({
+      id: document.id,
+      file,
+      meta: {
+        contentTemplateLinkId: link?.id ?? '',
+        contentTemplateId: link?.contentTemplateId ?? '',
+        title: document.title ?? '',
+        description: document.description ?? '',
+        filePath: document.filePath ?? '',
+        contentType: document.contentType ?? '',
+        keywords: document.keywords ?? '',
+        keywordsJson: document.keywordsJson ?? '',
+        summary: document.summary ?? '',
+        extractedText: document.extractedText ?? '',
+        formatedHtml: document.formatedHtml ?? '',
+        active: !!document.active
+      }
+    })
       .pipe(finalize(() => {
         this.uploadingDocumentId = null;
       }))

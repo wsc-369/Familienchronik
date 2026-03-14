@@ -1,11 +1,14 @@
 ﻿using app_familyBackend.DataContext;
 using app_familyBackend.DataManager;
+using app_familyBackend.Services;
 using app_familyChronikApi.ReadWriteDB;
 using appAhnenforschungBackEnd.Models;
 using appAhnenforschungData.DataManager;
 using appAhnenforschungData.Models.App;
+using Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 //using static System.Net.Mime.MediaTypeNames;
 
@@ -21,11 +24,14 @@ namespace appAhnenforschungBackEnd.Controllers
 
     private readonly ReadWirteContents _readWirteContents;
 
-    public ContentTemplatesController(MyDatabaseContext context, ReadWirteContents readWirteContents, ILogger<ContentTemplatesController> logger)
+    private readonly PdfProcessingService _pdfService;
+
+    public ContentTemplatesController(MyDatabaseContext context, ReadWirteContents readWirteContents, PdfProcessingService pdfService, ILogger<ContentTemplatesController> logger)
     {
       _logger = logger;
       _context = context;
       _readWirteContents = readWirteContents;
+      _pdfService = pdfService;
     }
 
 
@@ -484,7 +490,26 @@ namespace appAhnenforschungBackEnd.Controllers
       try
       {
         var file = Request.Form.Files.FirstOrDefault(f => f.Name == "file");
+        var payloadJson = Request.Form["payload"].FirstOrDefault();
+
+        if (file == null || string.IsNullOrEmpty(payloadJson))
+        {
+          return BadRequest("File and payload are required");
+        }
+        // Deserialize the payload JSON with case-insensitive option
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+          PropertyNameCaseInsensitive = true
+        };
+
+        var payload = System.Text.Json.JsonSerializer.Deserialize<UploadDocumentPayload>(payloadJson, options);
+        if (payload == null || payload.Id == Guid.Empty)
+        {
+          return BadRequest("Invalid payload or ID");
+        }
+
         var idString = Request.Form["id"].FirstOrDefault();
+        // var contentTemplateLinkId = payloadJson.FirstOrDefault(x=> x. Request.Form["contentTemplateLinkId"].FirstOrDefault();
 
         if (file == null || string.IsNullOrEmpty(idString))
         {
@@ -539,7 +564,7 @@ namespace appAhnenforschungBackEnd.Controllers
         // Update the document entity
         document.FilePath = Path.Combine(folderName, newFileName);
         document.ContentType = contentType;
-        
+
         // Extract text if it's a PDF or text document
         string extractedText = string.Empty;
         if (contentType == "application/pdf" || contentType == "text/plain")
@@ -552,8 +577,30 @@ namespace appAhnenforschungBackEnd.Controllers
 
         await _readWirteContents.AddOrUpdatetMediaLibraryDocument(document);
 
-        return Ok(new 
-        { 
+
+        //document = await _readWirteContents.GetSingleMediaLibraryDocument(documentId);
+        if (payload != null)
+        {
+          //if (!Guid.TryParse(payload, out Guid guid))
+          //{
+          //  return BadRequest("Invalid ID format");
+          //}
+          var entityDocument = new Entity.MediaLibraryDocument { Keywords = "," };
+          var contentTemplateLink = await this._context.ContentTemplateLinks.FirstOrDefaultAsync(ct => ct.Id == payload.ContentTemplateLinkId);
+          entityDocument.Title = contentTemplateLink != null ? contentTemplateLink.Title : string.Empty;
+          entityDocument.FileName = newFileName;
+          entityDocument.SourceFileName = originalName;
+          entityDocument.ExtractedText = "";
+          entityDocument.FilePath = Path.Combine(pathToSave, newFileName);
+          entityDocument.ContentType = file.ContentType;
+          entityDocument.ContentTemplateLink = contentTemplateLink;
+          entityDocument.Description = contentTemplateLink != null ? contentTemplateLink.SubTitle : string.Empty;
+          entityDocument.FormatedHtml = "";
+
+          var documentEntity = await _pdfService.ProcessPdfFile(entityDocument.FilePath, newFileName, entityDocument);
+        }
+        return Ok(new
+        {
           fileName = newFileName,
           originalFileName = originalName,
           filePath = document.FilePath,
@@ -567,6 +614,24 @@ namespace appAhnenforschungBackEnd.Controllers
         _logger.LogError(ex, "Error uploading document");
         return StatusCode(500, "An error occurred while uploading the document");
       }
+    }
+
+    // Add this payload class at the end of the controller or in a separate file
+    public class UploadDocumentPayload
+    {
+      public Guid Id { get; set; }
+      public Guid? ContentTemplateLinkId { get; set; }
+      public Guid? ContentTemplateId { get; set; }
+      public string? Title { get; set; }
+      public string? Description { get; set; }
+      public string? FilePath { get; set; }
+      public string? ContentType { get; set; }
+      public string? Keywords { get; set; }
+      public string? KeywordsJson { get; set; }
+      public string? Summary { get; set; }
+      public string? ExtractedText { get; set; }
+      public string? FormatedHtml { get; set; }
+      public bool Active { get; set; }
     }
 
     //// PUT: api/Employees/5

@@ -11,6 +11,50 @@ interface UploadDocumentResponse {
   title?: string;
 }
 
+interface UploadImageMeta {
+  contentTemplateId: string;
+  title: string;
+  subTitle: string;
+  imageName: string;
+  imageOriginalName: string;
+  description: string;
+  sortNo: number;
+  active: boolean;
+}
+
+interface UploadDocumentMeta {
+  contentTemplateLinkId: string;
+  contentTemplateId: string;
+  title: string;
+  description: string;
+  filePath: string;
+  contentType: string;
+  keywords: string;
+  keywordsJson: string;
+  summary: string;
+  extractedText: string;
+  formatedHtml: string;
+  active: boolean;
+}
+
+interface UploadImagePayload {
+  id: string;
+  file: File;
+  meta: UploadImageMeta;
+}
+
+interface UploadDocumentPayload {
+  id: string;
+  file: File;
+  meta: UploadDocumentMeta;
+}
+
+type UploadPayloadBase = {
+  id: string;
+  file: File;
+  meta: object;
+};
+
 @Injectable({ providedIn: 'root' })
 export class ContentTemplateService {
   private readonly baseUrl = `${environment.apiUrl}/ContentTemplates`;
@@ -53,18 +97,22 @@ export class ContentTemplateService {
     return this.http.delete<void>(`${this.baseUrl}/deleteContentMediaLibraryDocument/${encodeURIComponent(id)}`);
   }
 
-  uploadContentTemplateImage(id: string, file: File): Observable<{ imageName: string }> {
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('file', file);
+  uploadContentTemplateImage(payload: UploadImagePayload): Observable<{ imageName: string }> {
+    const formData = this.buildUploadFormData(payload);
     return this.http.post<{ imageName: string }>(`${this.baseUrl}/uploadImage`, formData);
   }
 
-  uploadContentTemplateDocument(id: string, file: File): Observable<UploadDocumentResponse> {
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('file', file);
+  uploadContentTemplateDocument(payload: UploadDocumentPayload): Observable<UploadDocumentResponse> {
+    const formData = this.buildUploadFormData(payload);
     return this.http.post<UploadDocumentResponse>(`${this.baseUrl}/uploadDocument`, formData);
+  }
+
+  private buildUploadFormData(payload: UploadPayloadBase): FormData {
+    const formData = new FormData();
+    formData.append('id', payload.id);
+    formData.append('payload', JSON.stringify({ id: payload.id, ...payload.meta }));
+    formData.append('file', payload.file);
+    return formData;
   }
 
 }
