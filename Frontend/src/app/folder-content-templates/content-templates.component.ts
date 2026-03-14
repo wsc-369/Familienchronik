@@ -62,7 +62,35 @@ export class ContentTemplatesComponent implements OnInit {
   }
 
   removeLink(index: number): void {
-    this.selectedTemplate.contentTemplateLinks.splice(index, 1);
+    const link = this.selectedTemplate.contentTemplateLinks[index];
+    if (!link) {
+      return;
+    }
+
+    const shouldDeleteInDb = this.isPersistedLink(link.id);
+    if (!shouldDeleteInDb) {
+      this.selectedTemplate.contentTemplateLinks.splice(index, 1);
+      return;
+    }
+
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.isSaving = true;
+
+    this.contentTemplateService.deleteContentTemplateLink(link.id)
+      .pipe(finalize(() => {
+        this.isSaving = false;
+      }))
+      .subscribe({
+        next: () => {
+          this.selectedTemplate.contentTemplateLinks.splice(index, 1);
+          this.removePersistedLinkFromCache(link.id);
+          this.successMessage = 'Link wurde geloescht.';
+        },
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('Link konnte nicht geloescht werden.', error);
+        }
+      });
   }
 
   addMediaLibraryDocument(linkIndex: number): void {
@@ -81,7 +109,35 @@ export class ContentTemplatesComponent implements OnInit {
       return;
     }
 
-    link.mediaLibraryDocuments.splice(documentIndex, 1);
+    const document = link.mediaLibraryDocuments[documentIndex];
+    if (!document) {
+      return;
+    }
+
+    const shouldDeleteInDb = this.isPersistedDocument(document.id);
+    if (!shouldDeleteInDb) {
+      link.mediaLibraryDocuments.splice(documentIndex, 1);
+      return;
+    }
+
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.isSaving = true;
+
+    this.contentTemplateService.deleteContentMediaLibraryDocument(document.id)
+      .pipe(finalize(() => {
+        this.isSaving = false;
+      }))
+      .subscribe({
+        next: () => {
+          link.mediaLibraryDocuments.splice(documentIndex, 1);
+          this.removePersistedDocumentFromCache(document.id);
+          this.successMessage = 'Dokument wurde geloescht.';
+        },
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('Dokument konnte nicht geloescht werden.', error);
+        }
+      });
   }
 
   addImage(): void {
@@ -89,7 +145,35 @@ export class ContentTemplatesComponent implements OnInit {
   }
 
   removeImage(index: number): void {
-    this.selectedTemplate.contentTemplateImages.splice(index, 1);
+    const image = this.selectedTemplate.contentTemplateImages[index];
+    if (!image) {
+      return;
+    }
+
+    const shouldDeleteInDb = this.isPersistedImage(image.id);
+    if (!shouldDeleteInDb) {
+      this.selectedTemplate.contentTemplateImages.splice(index, 1);
+      return;
+    }
+
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.isSaving = true;
+
+    this.contentTemplateService.deleteContentTemplateImage(image.id)
+      .pipe(finalize(() => {
+        this.isSaving = false;
+      }))
+      .subscribe({
+        next: () => {
+          this.selectedTemplate.contentTemplateImages.splice(index, 1);
+          this.removePersistedImageFromCache(image.id);
+          this.successMessage = 'Bild wurde geloescht.';
+        },
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('Bild konnte nicht geloescht werden.', error);
+        }
+      });
   }
 
   onSaveTemplate(): void {
@@ -412,5 +496,80 @@ export class ContentTemplatesComponent implements OnInit {
     }
 
     return '';
+  }
+
+  private getPersistedSelectedTemplate(): ContentTemplate | undefined {
+    return this.contentTemplates.find((item) => item.id === this.selectedTemplate.id);
+  }
+
+  private isPersistedLink(id?: string): boolean {
+    if (this.isEmptyId(id) || this.isEmptyId(this.selectedTemplate.id)) {
+      return false;
+    }
+
+    const persistedTemplate = this.getPersistedSelectedTemplate();
+    if (!persistedTemplate) {
+      return true;
+    }
+
+    return (persistedTemplate.contentTemplateLinks ?? []).some((link) => link.id === id);
+  }
+
+  private isPersistedImage(id?: string): boolean {
+    if (this.isEmptyId(id) || this.isEmptyId(this.selectedTemplate.id)) {
+      return false;
+    }
+
+    const persistedTemplate = this.getPersistedSelectedTemplate();
+    if (!persistedTemplate) {
+      return true;
+    }
+
+    return (persistedTemplate.contentTemplateImages ?? []).some((image) => image.id === id);
+  }
+
+  private isPersistedDocument(id?: string): boolean {
+    if (this.isEmptyId(id) || this.isEmptyId(this.selectedTemplate.id)) {
+      return false;
+    }
+
+    const persistedTemplate = this.getPersistedSelectedTemplate();
+    if (!persistedTemplate) {
+      return true;
+    }
+
+    return (persistedTemplate.contentTemplateLinks ?? []).some((link) =>
+      (link.mediaLibraryDocuments ?? []).some((document) => document.id === id)
+    );
+  }
+
+  private removePersistedLinkFromCache(id: string): void {
+    const persistedTemplate = this.getPersistedSelectedTemplate();
+    if (!persistedTemplate) {
+      return;
+    }
+
+    persistedTemplate.contentTemplateLinks = (persistedTemplate.contentTemplateLinks ?? []).filter((link) => link.id !== id);
+  }
+
+  private removePersistedImageFromCache(id: string): void {
+    const persistedTemplate = this.getPersistedSelectedTemplate();
+    if (!persistedTemplate) {
+      return;
+    }
+
+    persistedTemplate.contentTemplateImages = (persistedTemplate.contentTemplateImages ?? []).filter((image) => image.id !== id);
+  }
+
+  private removePersistedDocumentFromCache(id: string): void {
+    const persistedTemplate = this.getPersistedSelectedTemplate();
+    if (!persistedTemplate) {
+      return;
+    }
+
+    persistedTemplate.contentTemplateLinks = (persistedTemplate.contentTemplateLinks ?? []).map((link) => ({
+      ...link,
+      mediaLibraryDocuments: (link.mediaLibraryDocuments ?? []).filter((document) => document.id !== id)
+    }));
   }
 }

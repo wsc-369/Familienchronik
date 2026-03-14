@@ -32,6 +32,10 @@ namespace app_familyChronikApi.ReadWriteDB
         this.MapEntityToContentTemplate(entity, obj);
 
         obj.ContentTemplateLinks = (List<ValueObject.ContentTemplateLink>)await GetContentTemplateLinks(entity.Id);
+        foreach (ValueObject.ContentTemplateLink link in obj.ContentTemplateLinks)
+        {
+          link.MediaLibraryDocuments = (List<ValueObject.MediaLibraryDocument>)await GetMediaLibraryDocumentsByContentTemplateLinkId(link.Id);
+        }
         obj.ContentTemplateImages = (List<ValueObject.ContentTemplateImage>)await GetContentTemplateImageByContentTemplateId(entity.Id);
         contentTemplates.Add(obj);
       }
@@ -64,7 +68,6 @@ namespace app_familyChronikApi.ReadWriteDB
     {
       try
       {
-
         List<ValueObject.ContentTemplate> templates = new List<ValueObject.ContentTemplate>();
         foreach (var entity in _context.ContentTemplates.Where(x => x.Type == (TemplateTypes)type))
         {
@@ -75,7 +78,15 @@ namespace app_familyChronikApi.ReadWriteDB
           {
             var link = new ValueObject.ContentTemplateLink();
             this.MapEntityToContentTemplateLink(entityLink, link);
+            foreach (var entityMediaLibraryDocument in _context.MediaLibraryDocuments.Where(x => x.ContentTemplateLink == entityLink))
+            {
+              var mediaLibraryDocument = new ValueObject.MediaLibraryDocument();
+              this.MapEntityToMediaLibraryDocument(entityMediaLibraryDocument, mediaLibraryDocument);
+              link.MediaLibraryDocuments.Add(mediaLibraryDocument);
+            }
+
             template.ContentTemplateLinks.Add(link);
+
           }
 
           foreach (var entityImage in _context.ContentTemplateImages.Where(x => x.ContentTemplateId == entity.Id))
@@ -95,21 +106,67 @@ namespace app_familyChronikApi.ReadWriteDB
       }
     }
 
+    public async Task<IEnumerable<ValueObject.ContentTemplate>> GetContendTemplatesById(Guid id)
+    {
+      try
+      {
+        List<ValueObject.ContentTemplate> templates = new List<ValueObject.ContentTemplate>();
+        foreach (var entity in _context.ContentTemplates.Where(x => x.Id == id))
+        {
+          var template = new ValueObject.ContentTemplate();
+          this.MapEntityToContentTemplate(entity, template);
+
+          foreach (var entityLink in _context.ContentTemplateLinks.Where(x => x.ContentTemplateId == entity.Id))
+          {
+            var link = new ValueObject.ContentTemplateLink();
+            this.MapEntityToContentTemplateLink(entityLink, link);
+            foreach (var entityMediaLibraryDocument in _context.MediaLibraryDocuments.Where(x => x.ContentTemplateLink == entityLink))
+            {
+              var mediaLibraryDocument = new ValueObject.MediaLibraryDocument();
+              this.MapEntityToMediaLibraryDocument(entityMediaLibraryDocument, mediaLibraryDocument);
+              link.MediaLibraryDocuments.Add(mediaLibraryDocument);
+            }
+
+            template.ContentTemplateLinks.Add(link);
+
+          }
+
+          foreach (var entityImage in _context.ContentTemplateImages.Where(x => x.ContentTemplateId == entity.Id))
+          {
+            var image = new ValueObject.ContentTemplateImage();
+            this.MapEntityToContentTemplateImage(entityImage, image);
+            template.ContentTemplateImages.Add(image);
+          }
+          templates.Add(template);
+        }
+
+        return templates;
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
 
     public async Task<IEnumerable<ValueObject.ContentTemplateLink>> GetContentTemplateLinks(Guid id)
     {
 
       List<ValueObject.ContentTemplateLink> contentTemplateLinks = [];
-      var entitys = await _context.ContentTemplateLinks.Where(x=>x.ContentTemplateId == id).ToListAsync();
+      var entitys = await _context.ContentTemplateLinks.Where(x => x.ContentTemplateId == id).ToListAsync();
 
       foreach (var entity in entitys)
       {
         var obj = new ValueObject.ContentTemplateLink();
-        this.MapEntityToContentTemplateLink(entity, obj);
+        MapEntityToContentTemplateLink(entity, obj);
+        var entitysMediaLibraryDocuments = await GetMediaLibraryDocumentsByContentTemplateLinkId(obj.Id);
+        obj.MediaLibraryDocuments = (List<ValueObject.MediaLibraryDocument>?)(entitysMediaLibraryDocuments ?? new List<ValueObject.MediaLibraryDocument>());
         contentTemplateLinks.Add(obj);
       }
       return contentTemplateLinks;
     }
+
+
+
 
     public async Task<IEnumerable<ValueObject.ContentTemplateImage>> GetContentTemplateImages(Guid id)
     {
@@ -198,7 +255,7 @@ namespace app_familyChronikApi.ReadWriteDB
 
     public async Task<ValueObject.ContentTemplate> GetEmptyContentTemplate()
     {
-       return this.EmptyContentTemplate();
+      return this.EmptyContentTemplate();
     }
 
     public async Task<ValueObject.ContentTemplateLink> GetEmptyContentTemplateLink(Guid id)
@@ -256,13 +313,14 @@ namespace app_familyChronikApi.ReadWriteDB
 
         return added;
       }
-      catch(Exception ex) {
+      catch (Exception ex)
+      {
         Debug.WriteLine($"Error in AddContentTemplate: {ex.Message}");
         throw;
       }
     }
 
-    
+
     public async Task<ValueObject.ContentTemplateLink> AddContentTemplate(ValueObject.ContentTemplateLink link)
     {
       try
@@ -312,9 +370,9 @@ namespace app_familyChronikApi.ReadWriteDB
     }
 
 
-    
 
-      public async Task<ValueObject.ContentTemplateImage> AddContentTemplateImage(ValueObject.ContentTemplateImage img)
+
+    public async Task<ValueObject.ContentTemplateImage> AddContentTemplateImage(ValueObject.ContentTemplateImage img)
     {
       try
       {
@@ -384,6 +442,84 @@ namespace app_familyChronikApi.ReadWriteDB
         throw;
       }
     }
+
+
+    public async Task<bool> DeleteContentTemplateLink(Guid id)
+    {
+      try
+      {
+        var entityLink = await _context.ContentTemplateLinks.FirstOrDefaultAsync(x => x.ContentTemplateId == id);
+        // TODO: delete Media dok
+        if (entityLink != null)
+        {
+          _context.ContentTemplateLinks.Remove(entityLink);
+        }
+
+
+        var entityImages = await _context.ContentTemplateImages.Where(x => x.ContentTemplateId == id).ToListAsync();
+
+        if (entityImages != null)
+        {
+          _context.ContentTemplateImages.RemoveRange(entityImages);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine($"Error in DeleteContentTemplate: {ex.Message}");
+        throw;
+      }
+    }
+
+
+    public async Task<bool> DeleteContentTemplateImage(Guid id)
+    {
+      try
+      {
+        var entityImage = await _context.ContentTemplateImages.FirstOrDefaultAsync(x => x.ContentTemplateId == id);
+
+        if (entityImage != null)
+        {
+          _context.ContentTemplateImages.Remove(entityImage);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine($"Error in DeleteContentTemplate: {ex.Message}");
+        throw;
+      }
+    }
+
+
+    public async Task<bool> DeleteContentMediaLibraryDocument(Guid id)
+    {
+      try
+      {
+        var entityImage = await _context.MediaLibraryDocuments.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (entityImage != null)
+        {
+          _context.MediaLibraryDocuments.Remove(entityImage);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine($"Error in DeleteContentTemplate: {ex.Message}");
+        throw;
+      }
+    }
+
 
     public ValueObject.MediaLibraryDocument GetEmptyDocuments()
     {
@@ -501,7 +637,8 @@ namespace app_familyChronikApi.ReadWriteDB
 
         await _context.ContentTemplateImages.AddAsync(entity);
       }
-      else {
+      else
+      {
         this.MapContentTemplateImagesToEntity(contentTemplateImage, entity);
 
         _context.ContentTemplateImages.Update(entity);
@@ -512,7 +649,7 @@ namespace app_familyChronikApi.ReadWriteDB
       return true;
     }
 
-    public async Task<bool> UpdatetMediaLibraryDocument(ValueObject.MediaLibraryDocument mediaLibraryDocument)
+    public async Task<bool> AddOrUpdatetMediaLibraryDocument(ValueObject.MediaLibraryDocument mediaLibraryDocument)
     {
       var entity = await _context.MediaLibraryDocuments.FirstOrDefaultAsync(x => x.Id == mediaLibraryDocument.Id);
 
@@ -522,7 +659,20 @@ namespace app_familyChronikApi.ReadWriteDB
         {
           Id = mediaLibraryDocument.Id,
           Title = mediaLibraryDocument.Title,
-          Keywords = mediaLibraryDocument.Keywords ?? string.Empty // Ensure required property is set
+          Keywords = mediaLibraryDocument.Keywords ?? string.Empty, // Ensure required property is set
+          ContentTemplateLink = mediaLibraryDocument.ContentTemplateLink != null ? new Entity.ContentTemplateLink
+          {
+            Id = mediaLibraryDocument.ContentTemplateLink.Id,
+            ContentTemplateId = mediaLibraryDocument.ContentTemplateLink.ContentTemplateId,
+            Title = mediaLibraryDocument.ContentTemplateLink.Title,
+            SubTitle = mediaLibraryDocument.ContentTemplateLink.SubTitle,
+            IsExternalLink = mediaLibraryDocument.ContentTemplateLink.IsExternalLink,
+            NavigationTo = mediaLibraryDocument.ContentTemplateLink.NavigationTo,
+            PersonId = mediaLibraryDocument.ContentTemplateLink.PersonId ?? Guid.Empty,
+            Description = mediaLibraryDocument.ContentTemplateLink.Description,
+            SortNo = mediaLibraryDocument.ContentTemplateLink.SortNo,
+            Active = mediaLibraryDocument.ContentTemplateLink.Active
+          } : null
         };
         this.MapMediaLibraryDocumentToEntity(mediaLibraryDocument, entity);
 
@@ -567,7 +717,7 @@ namespace app_familyChronikApi.ReadWriteDB
       entity.ContentTemplateId = contentTemplateLink.ContentTemplateId;
       entity.Title = contentTemplateLink.Title ?? String.Empty;
       entity.SubTitle = contentTemplateLink.SubTitle ?? String.Empty;
-      entity.IsExternalLink = contentTemplateLink.IsExternalLink ;
+      entity.IsExternalLink = contentTemplateLink.IsExternalLink;
       entity.NavigationTo = contentTemplateLink.NavigationTo ?? String.Empty;
       entity.PersonId = contentTemplateLink.PersonId ?? Guid.Empty;
       entity.Description = contentTemplateLink.Description ?? String.Empty;
@@ -585,19 +735,19 @@ namespace app_familyChronikApi.ReadWriteDB
       entity.ExtractedText = mediaLibraryDocument.ExtractedText ?? String.Empty;
       entity.FormatedHtml = mediaLibraryDocument.FormatedHtml ?? String.Empty;
       entity.Active = mediaLibraryDocument.Active;
-      if (mediaLibraryDocument.ContentTemplateLink != null)
-      {
-        var contentTemplateLinkEntity = new Entity.ContentTemplateLink();
-        MapContentTemplateLinkToEntity(mediaLibraryDocument.ContentTemplateLink, contentTemplateLinkEntity);
-        entity.ContentTemplateLink = contentTemplateLinkEntity;
-      }
+      //if (mediaLibraryDocument.ContentTemplateLink != null)
+      //{
+      //  var contentTemplateLinkEntity = new Entity.ContentTemplateLink();
+      //  MapContentTemplateLinkToEntity(mediaLibraryDocument.ContentTemplateLink, contentTemplateLinkEntity);
+      //  entity.ContentTemplateLink = contentTemplateLinkEntity;
+      //}
     }
 
     private void MapContentTemplateToEntity(ValueObject.ContentTemplate contentTemplate, Entity.ContentTemplate entity)
     {
       entity.Id = contentTemplate.Id;
-      entity.RefContentTemplateId = contentTemplate.RefContentTemplateId?? -1;
-      entity.Title = contentTemplate.Title?? String.Empty;
+      entity.RefContentTemplateId = contentTemplate.RefContentTemplateId ?? -1;
+      entity.Title = contentTemplate.Title ?? String.Empty;
       entity.SubTitle = contentTemplate.SubTitle ?? String.Empty;
       entity.Content = contentTemplate.Content ?? String.Empty;
       entity.SortNo = contentTemplate.SortNo;
@@ -661,7 +811,7 @@ namespace app_familyChronikApi.ReadWriteDB
         Title = string.Empty,
         Type = TemplateTypes.undefind,
         Active = false
-        };
+      };
 
       return contentTemplate;
     }

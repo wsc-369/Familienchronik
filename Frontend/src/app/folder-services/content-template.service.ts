@@ -33,4 +33,18 @@ export class ContentTemplateService {
   deleteContentTemplate(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${encodeURIComponent(id)}`);
   }
+
+  deleteContentTemplateLink(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/deleteContentTemplateLink/${encodeURIComponent(id)}`);
+  }
+
+  deleteContentTemplateImage(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/deleteContentTemplateImage/${encodeURIComponent(id)}`);
+  }
+
+  deleteContentMediaLibraryDocument(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/deleteContentMediaLibraryDocument/${encodeURIComponent(id)}`);
+  }
+
+
 }

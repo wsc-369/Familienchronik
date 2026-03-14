@@ -43,7 +43,7 @@ namespace appAhnenforschungBackEnd.Controllers
     }
 
 
-   // [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     [HttpGet("getEmptyContentTemplate")]
     public async Task<ValueObject.ContentTemplate> getContentTemplate()
     {
@@ -60,7 +60,7 @@ namespace appAhnenforschungBackEnd.Controllers
     {
       var template = await _readWirteContents.GetSingleContentTemplate(Guid.Parse(id));
 
-     
+
       return template;
     }
 
@@ -75,46 +75,61 @@ namespace appAhnenforschungBackEnd.Controllers
 
     }
 
-      /// <summary>
-      /// Creates a new content template
-      /// </summary>
-      //[Authorize(Roles = "Admin")]
-      [HttpPost]
-      public async Task<ActionResult<ValueObject.ContentTemplate>> CreateContentTemplate(
-          [FromBody] ValueObject.ContentTemplate contentTemplate)
+    /// <summary>
+    /// Creates a new content template
+    /// </summary>
+    //[Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<ActionResult<ValueObject.ContentTemplate>> CreateContentTemplate(
+        [FromBody] ValueObject.ContentTemplate contentTemplate)
+    {
+      if (!ModelState.IsValid)
       {
-        if (!ModelState.IsValid)
-        {
-          return BadRequest(ModelState);
-        }
-
-        try
-        {
-          var template = await _readWirteContents.AddContentTemplate(contentTemplate);
-       
-          if (template == null)
-          {
-            return BadRequest("Failed to create content template");
-          }
-
-          // REST-konform: 201 Created mit Location-Header
-          return CreatedAtAction(
-            nameof(getContentTemplate), 
-            new { id = template.Id }, 
-            template
-          );
-        }
-        catch (Exception ex)
-        {
-          _logger.LogError(ex, "Error creating content template");
-          return StatusCode(500, "An error occurred while creating the content template");
-        }
+        return BadRequest(ModelState);
       }
 
-  
+      try
+      {
+        var template = await _readWirteContents.AddContentTemplate(contentTemplate);
+        if (contentTemplate.ContentTemplateImages != null)
+        {
+          foreach (var image in contentTemplate.ContentTemplateImages)
+          {
+            await _readWirteContents.AddOrUpdatetContentTemplateImage(image);
+          }
+        }
+        foreach (var link in contentTemplate.ContentTemplateLinks)
+        {
+          await _readWirteContents.AddOrUpdatetContentTemplateLink(link);
+          foreach (var media in link.MediaLibraryDocuments)
+          {
+            await _readWirteContents.AddOrUpdatetMediaLibraryDocument(media);
+          }
+        }
 
- 
-   // [Authorize(Roles = "Admin")]
+        if (template == null)
+        {
+          return BadRequest("Failed to create content template");
+        }
+
+        // REST-konform: 201 Created mit Location-Header
+        return CreatedAtAction(
+          nameof(getContentTemplate),
+          new { id = template.Id },
+          template
+        );
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error creating content template");
+        return StatusCode(500, "An error occurred while creating the content template");
+      }
+    }
+
+
+
+
+    // [Authorize(Roles = "Admin")]
     [HttpPut("updateContentTemplate/{id}")]
     public async Task<IActionResult> UpdateContentTemplate(string id, [FromBody] ValueObject.ContentTemplate contentTemplate)
     {
@@ -123,10 +138,19 @@ namespace appAhnenforschungBackEnd.Controllers
         return BadRequest(ModelState);
       }
 
+      //      var templateRelaton = await _readWirteContents.GetContendTemplatesById(contentTemplate.Id); ;
+      //      var templateRelatonDeleete = await _readWirteContents.GetSingleContentTemplate(Guid.Parse(id));
+
       var template = await _readWirteContents.UpdateContentTemplate(contentTemplate);
       foreach (ValueObject.ContentTemplateLink contentTemplateLink in contentTemplate.ContentTemplateLinks)
       {
         await _readWirteContents.AddOrUpdatetContentTemplateLink(contentTemplateLink);
+
+        foreach (ValueObject.MediaLibraryDocument mediaLibraryDocument in contentTemplateLink.MediaLibraryDocuments)
+        {
+          await _readWirteContents.AddOrUpdatetMediaLibraryDocument(mediaLibraryDocument);
+
+        }
 
       }
 
@@ -159,7 +183,87 @@ namespace appAhnenforschungBackEnd.Controllers
       try
       {
         var deleted = await _readWirteContents.DeleteContentTemplate(guid);
-        
+
+        if (!deleted)
+        {
+          return NotFound($"Content template with ID {id} not found");
+        }
+
+        return NoContent();
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error deleting content template with ID: {Id}", id);
+        return StatusCode(500, "An error occurred while deleting the content template");
+      }
+    }
+
+
+
+    [HttpDelete("deleteContentTemplateLink/{id}")]
+    public async Task<IActionResult> DeleteContentTemplateLink(string id)
+    {
+      if (!Guid.TryParse(id, out Guid guid))
+      {
+        return BadRequest("Invalid ID format");
+      }
+
+      try
+      {
+        var deleted = await _readWirteContents.DeleteContentTemplateLink(guid);
+
+        if (!deleted)
+        {
+          return NotFound($"Content template with ID {id} not found");
+        }
+
+        return NoContent();
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error deleting content template with ID: {Id}", id);
+        return StatusCode(500, "An error occurred while deleting the content template");
+      }
+    }
+
+    [HttpDelete("deleteContentTemplateImage/{id}")]
+    public async Task<IActionResult> DeleteContentTemplateImage(string id)
+    {
+      if (!Guid.TryParse(id, out Guid guid))
+      {
+        return BadRequest("Invalid ID format");
+      }
+
+      try
+      {
+        var deleted = await _readWirteContents.DeleteContentTemplateImage(guid);
+
+        if (!deleted)
+        {
+          return NotFound($"Content template with ID {id} not found");
+        }
+
+        return NoContent();
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error deleting content template with ID: {Id}", id);
+        return StatusCode(500, "An error occurred while deleting the content template");
+      }
+    }
+
+    [HttpDelete("deleteContentMediaLibraryDocument/{id}")]
+    public async Task<IActionResult> DeleteContentMediaLibraryDocument(string id)
+    {
+      if (!Guid.TryParse(id, out Guid guid))
+      {
+        return BadRequest("Invalid ID format");
+      }
+
+      try
+      {
+        var deleted = await _readWirteContents.DeleteContentMediaLibraryDocument(guid);
+
         if (!deleted)
         {
           return NotFound($"Content template with ID {id} not found");
@@ -225,7 +329,7 @@ namespace appAhnenforschungBackEnd.Controllers
       {
         var file = Request.Form.Files[0];
         var folderName = Path.Combine("resources", "images");
-        
+
 
         if (file.Length > 0)
         {
@@ -237,7 +341,7 @@ namespace appAhnenforschungBackEnd.Controllers
           CReadWriteData oReadWriteData = new CReadWriteData();
           CContentTemplateImage image = oReadWriteData.GetContendTemplateImageById(id);
           CContentTemplate contentTemplate = oReadWriteData.GetContendTemplatesById(image.ContentTemplateId);
-          
+
           folderName = (new ImagesHelper()).GetFolderName(folderName, (CContentTemplate.ETemplateTypes)contentTemplate.Type);
           var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
 
@@ -264,7 +368,7 @@ namespace appAhnenforschungBackEnd.Controllers
           }
 
           imagesHelper.Resize(strImagePathOriginal, strImagePathLarge, strImageFileSmall, strImagePathThumb);
-          
+
           return Ok(new { image });
         }
         else

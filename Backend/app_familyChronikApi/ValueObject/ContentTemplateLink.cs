@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ValueObject;
+using static appAhnenforschungBackEnd.DataManager.CGlobal;
 
 namespace ValueObject
 {
@@ -17,7 +18,7 @@ namespace ValueObject
     public int SortNo { get; set; } = 0;
     public bool Active { get; set; }  = false;
 
-    public List<MediaLibraryDocument>? MediaLibraryDocuments { get; set; } = new List<MediaLibraryDocument>();
+   public List<MediaLibraryDocument>? MediaLibraryDocuments { get; set; } = new List<MediaLibraryDocument>();
 
     protected override IEnumerable<object> GetEqualityComponents()
     {
