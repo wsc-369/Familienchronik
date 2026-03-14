@@ -8,14 +8,14 @@ namespace ValueObject
   {
     public new Guid Id { get; set; }
     public int? RefContentTemplateId { get; set; }
-    public string? Title { get; set; }
-    public string? SubTitle { get; set; }
-    public string? Content { get; set; }
+    public string Title { get; set; }
+    public string SubTitle { get; set; }
+    public string Content { get; set; }
     public int SortNo { get; set; }
     public TemplateTypes Type { get; set; }
     public  bool Active { get; set; }
-    public List<ContentTemplateLink> ContentTemplateLinks { get; set; } = new List<ContentTemplateLink>();
-    public List<ContentTemplateImage> ContentTemplateImages { get; set; } = new List<ContentTemplateImage>();
+    public List<ContentTemplateLink>? ContentTemplateLinks { get; set; } = new List<ContentTemplateLink>();
+    public List<ContentTemplateImage>? ContentTemplateImages { get; set; } = new List<ContentTemplateImage>();
 
     
     protected override IEnumerable<object> GetEqualityComponents()

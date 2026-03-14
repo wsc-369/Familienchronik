@@ -42,7 +42,17 @@ namespace appAhnenforschungBackEnd.Controllers
       return await _readWirteContents.GetContendTemplatesByType(id);
     }
 
-    
+
+   // [Authorize(Roles = "Admin")]
+    [HttpGet("getEmptyContentTemplate")]
+    public async Task<ValueObject.ContentTemplate> getContentTemplate()
+    {
+      var template = await _readWirteContents.GetEmptyContentTemplate();
+
+
+      return template;
+    }
+
 
     [Authorize(Roles = "Admin")]
     [HttpGet("getContentTemplate/{id}")]
@@ -65,89 +75,47 @@ namespace appAhnenforschungBackEnd.Controllers
 
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPost("addContentTemplate")]
-    public async Task<IActionResult> AddContentTemplate([FromBody] ValueObject.ContentTemplate contentTemplate)
-    {
-      if (!ModelState.IsValid)
+      /// <summary>
+      /// Creates a new content template
+      /// </summary>
+      //[Authorize(Roles = "Admin")]
+      [HttpPost]
+      public async Task<ActionResult<ValueObject.ContentTemplate>> CreateContentTemplate(
+          [FromBody] ValueObject.ContentTemplate contentTemplate)
       {
-        return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+        {
+          return BadRequest(ModelState);
+        }
+
+        try
+        {
+          var template = await _readWirteContents.AddContentTemplate(contentTemplate);
+       
+          if (template == null)
+          {
+            return BadRequest("Failed to create content template");
+          }
+
+          // REST-konform: 201 Created mit Location-Header
+          return CreatedAtAction(
+            nameof(getContentTemplate), 
+            new { id = template.Id }, 
+            template
+          );
+        }
+        catch (Exception ex)
+        {
+          _logger.LogError(ex, "Error creating content template");
+          return StatusCode(500, "An error occurred while creating the content template");
+        }
       }
 
-      var template = await _readWirteContents.AddContentTemplate(contentTemplate);
-     
-      if (template == null)
-      {
-        return NotFound();
-      }
-      return Ok(template);
-    }
+  
 
+ 
    // [Authorize(Roles = "Admin")]
-    [HttpPost("addContentTemplateLink")]
-    public async Task<IActionResult> AddContentTemplateLink([FromBody] ValueObject.ContentTemplateLink contentTemplateLink)
-    {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
-      var template = await _readWirteContents.AddContentTemplate(contentTemplateLink);
-
-      if (template == null)
-      {
-        return NotFound();
-      }
-      return Ok(template);
-      //if (!ModelState.IsValid)
-      //{
-      //  return BadRequest(ModelState);
-      //}
-
-      //CReadWriteData oReadWriteData = new CReadWriteData();
-     // CContentTemplateLink addedContentTemplateLink = oReadWriteData.AddContentTemplateLink(contentTemplateLink);
-
-      //if (addedContentTemplateLink == null)
-      //{
-      //  return NotFound();
-      //}
-      //return Ok(addedContentTemplateLink);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost("addContentTemplateImage")]
-    public async Task<IActionResult> AddContentTemplateImage([FromBody] ValueObject.ContentTemplateImage contentTemplateImage)
-    {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
-      var template = await _readWirteContents.AddContentTemplateImage(contentTemplateImage);
-
-      if (template == null)
-      {
-        return NotFound();
-      }
-      return Ok(template);
-
-      //if (!ModelState.IsValid)
-      //{
-      //  return BadRequest(ModelState);
-      //}
-
-      //CReadWriteData oReadWriteData = new CReadWriteData();
-      //CContentTemplateImage addedContentTemplateImage = oReadWriteData.AddContentTemplateImage(contentTemplateImage);
-
-      //if (addedContentTemplateImage == null)
-      //{
-      //  return NotFound();
-      //}
-      //return Ok(addedContentTemplateImage);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost("updateContentTemplate/{id}")]
+    [HttpPut("updateContentTemplate/{id}")]
     public async Task<IActionResult> UpdateContentTemplate(string id, [FromBody] ValueObject.ContentTemplate contentTemplate)
     {
       if (!ModelState.IsValid)
@@ -156,6 +124,18 @@ namespace appAhnenforschungBackEnd.Controllers
       }
 
       var template = await _readWirteContents.UpdateContentTemplate(contentTemplate);
+      foreach (ValueObject.ContentTemplateLink contentTemplateLink in contentTemplate.ContentTemplateLinks)
+      {
+        await _readWirteContents.AddOrUpdatetContentTemplateLink(contentTemplateLink);
+
+      }
+
+      foreach (ValueObject.ContentTemplateImage contentTemplateImage in contentTemplate.ContentTemplateImages)
+      {
+        await _readWirteContents.AddOrUpdatetContentTemplateImage(contentTemplateImage);
+
+      }
+
 
       if (template == null)
       {
@@ -164,128 +144,73 @@ namespace appAhnenforschungBackEnd.Controllers
       return Ok(template);
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPost("updateContentTemplateLink/{id}")]
-    public async Task<IActionResult> UpdateContentTemplateLink(string id, [FromBody] ValueObject.ContentTemplateLink contentTemplateLink)
+    /// <summary>
+    /// Deletes a content template (soft delete - sets Active = false)
+    /// </summary>
+   // [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteContentTemplate(string id)
     {
-
-      if (!ModelState.IsValid)
+      if (!Guid.TryParse(id, out Guid guid))
       {
-        return BadRequest(ModelState);
+        return BadRequest("Invalid ID format");
       }
 
-      var template = await _readWirteContents.UpdatetContentTemplateLink(contentTemplateLink);
-
-      if (!template)
+      try
       {
-        return NotFound();
+        var deleted = await _readWirteContents.DeleteContentTemplate(guid);
+        
+        if (!deleted)
+        {
+          return NotFound($"Content template with ID {id} not found");
+        }
+
+        return NoContent();
       }
-      
-      return Ok(template);
-
-      //if (!ModelState.IsValid)
-      //{
-      //  return BadRequest(ModelState);
-      //}
-
-      //CReadWriteData oReadWriteData = new CReadWriteData();
-      //CContentTemplateLink update = oReadWriteData.UpdateContentTemplateLink(contentTemplateLink);
-
-      //if (id != update.ContentTemplateLinkId.ToString())
-      //{
-      //  return BadRequest();
-      //}
-      //return Ok(update);
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error deleting content template with ID: {Id}", id);
+        return StatusCode(500, "An error occurred while deleting the content template");
+      }
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPost("updateContentTemplateImage/{id}")]
-    public async Task<IActionResult> UpdateContentTemplateImage(string id, [FromBody] ValueObject.ContentTemplateImage contentTemplateImage)
-    {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
+    //[Authorize(Roles = "Admin")]
+    //[HttpPost("deleteContentTemplateLink")]
+    //public async Task<IActionResult> DeleteContentTemplateLink([FromBody] CContentTemplateLink contentTemplateLink)
+    //{
+    //  if (!ModelState.IsValid)
+    //  {
+    //    return BadRequest(ModelState);
+    //  }
 
-      var template = await _readWirteContents.UpdatetContentTemplateImage(contentTemplateImage);
+    //  CReadWriteData oReadWriteData = new CReadWriteData();
+    //  bool isDeleted = oReadWriteData.DeleteContentTemplateLink(contentTemplateLink);
 
-      if (!template)
-      {
-        return NotFound();
-      }
+    //  if (!isDeleted)
+    //  {
+    //    return BadRequest();
+    //  }
+    //  return Ok(isDeleted);
+    //}
 
-      return Ok(template);
-      //if (!ModelState.IsValid)
-      //{
-      //  return BadRequest(ModelState);
-      //}
+    //[Authorize(Roles = "Admin")]
+    //[HttpPost("deleteContentTemplateImage")]
+    //public async Task<IActionResult> DeleteContentTemplateImage([FromBody] CContentTemplateImage contentTemplateImage)
+    //{
+    //  if (!ModelState.IsValid)
+    //  {
+    //    return BadRequest(ModelState);
+    //  }
 
-      //CReadWriteData oReadWriteData = new CReadWriteData();
-      //CContentTemplateImage update = oReadWriteData.UpdateContentTemplateImage(contentTemplateImage);
+    //  CReadWriteData oReadWriteData = new CReadWriteData();
+    //  bool isDeleted = oReadWriteData.DeleteContentTemplateImage(contentTemplateImage);
 
-      //if (id != update.ContentTemplateImageId.ToString())
-      //{
-      //  return BadRequest();
-      //}
-      //return Ok(update);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost("deleteContentTemplate")]
-    public async Task<IActionResult> DeleteContentTemplate([FromBody] CContentTemplate contentTemplate)
-    {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
-      CReadWriteData oReadWriteData = new CReadWriteData();
-      bool isDeleted = oReadWriteData.DeleteContentTemplate(contentTemplate);
-
-      if (!isDeleted)
-      {
-        return BadRequest();
-      }
-      return Ok(isDeleted);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost("deleteContentTemplateLink")]
-    public async Task<IActionResult> DeleteContentTemplateLink([FromBody] CContentTemplateLink contentTemplateLink)
-    {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
-      CReadWriteData oReadWriteData = new CReadWriteData();
-      bool isDeleted = oReadWriteData.DeleteContentTemplateLink(contentTemplateLink);
-
-      if (!isDeleted)
-      {
-        return BadRequest();
-      }
-      return Ok(isDeleted);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost("deleteContentTemplateImage")]
-    public async Task<IActionResult> DeleteContentTemplateImage([FromBody] CContentTemplateImage contentTemplateImage)
-    {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
-      CReadWriteData oReadWriteData = new CReadWriteData();
-      bool isDeleted = oReadWriteData.DeleteContentTemplateImage(contentTemplateImage);
-
-      if (!isDeleted)
-      {
-        return BadRequest();
-      }
-      return Ok(isDeleted);
-    }
+    //  if (!isDeleted)
+    //  {
+    //    return BadRequest();
+    //  }
+    //  return Ok(isDeleted);
+    //}   
 
     /// <summary>
     /// Upload der Dateien für die Templates

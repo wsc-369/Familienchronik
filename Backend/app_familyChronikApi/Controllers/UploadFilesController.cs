@@ -65,7 +65,7 @@ namespace appAhnenforschungBackEnd.Controllers
             img.subTitle = contentTemplateImage.SubTitle;
             img.description = contentTemplateImage.Description;
             img.type = TemplateTypes.mainPageSlide;
-            img.sortNo = contentTemplateImage.SortNo.Value;
+            img.sortNo = contentTemplateImage.SortNo;
             arlImages.Add(img);
             index = index + 1;
           }

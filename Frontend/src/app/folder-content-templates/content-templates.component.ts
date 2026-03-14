@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -13,6 +14,8 @@ import { ContentTemplateService } from '../folder-services/content-template.serv
   styleUrls: ['./content-templates.component.css']
 })
 export class ContentTemplatesComponent implements OnInit {
+  private readonly emptyId = '00000000-0000-0000-0000-000000000000';
+
   contentTemplates: ContentTemplate[] = [];
   selectedTemplate: ContentTemplate = this.createEmptyTemplate();
   isLoading = false;
@@ -20,7 +23,7 @@ export class ContentTemplatesComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private readonly contentTemplateService: ContentTemplateService) {}
+  constructor(private readonly contentTemplateService: ContentTemplateService) { }
 
   ngOnInit(): void {
     this.loadContentTemplates();
@@ -94,10 +97,27 @@ export class ContentTemplatesComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    if (this.isEmptyId(this.selectedTemplate.id)) {
+      const payload = this.normalizeTemplate(this.selectedTemplate, this.createClientGuid());
+      this.contentTemplateService.createContentTemplate(payload)
+        .pipe(finalize(() => {
+          this.isSaving = false;
+        }))
+        .subscribe({
+          next: (savedTemplate) => {
+            this.successMessage = 'ContentTemplate wurde erstellt.';
+            this.selectedTemplate = this.cloneTemplate(savedTemplate);
+            this.loadContentTemplates(savedTemplate.id);
+          },
+          error: (error) => {
+            this.errorMessage = this.buildErrorMessage('ContentTemplate konnte nicht erstellt werden.', error);
+          }
+        });
+      return;
+    }
+
     const payload = this.normalizeTemplate(this.selectedTemplate);
-    const request$ = payload.id
-      ? this.contentTemplateService.updateContentTemplate(payload.id, payload)
-      : this.contentTemplateService.createContentTemplate(payload);
+    const request$ = this.contentTemplateService.updateContentTemplate(payload.id, payload);
 
     request$
       .pipe(finalize(() => {
@@ -109,8 +129,8 @@ export class ContentTemplatesComponent implements OnInit {
           this.selectedTemplate = this.cloneTemplate(savedTemplate);
           this.loadContentTemplates(savedTemplate.id);
         },
-        error: () => {
-          this.errorMessage = 'ContentTemplate konnte nicht gespeichert werden.';
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('ContentTemplate konnte nicht gespeichert werden.', error);
         }
       });
   }
@@ -141,8 +161,8 @@ export class ContentTemplatesComponent implements OnInit {
           this.selectedTemplate = this.createEmptyTemplate();
           this.loadContentTemplates();
         },
-        error: () => {
-          this.errorMessage = 'ContentTemplate konnte nicht geloescht werden.';
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('ContentTemplate konnte nicht geloescht werden.', error);
         }
       });
   }
@@ -167,36 +187,36 @@ export class ContentTemplatesComponent implements OnInit {
             }
           }
         },
-        error: () => {
-          this.errorMessage = 'ContentTemplates konnten nicht geladen werden.';
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('ContentTemplates konnten nicht geladen werden.', error);
         }
       });
   }
 
   private createEmptyTemplate(): ContentTemplate {
     return {
-      id: '',
+      id: this.emptyId,
       refContentTemplateId: undefined,
       title: '',
       subTitle: '',
       content: '',
       sortNo: 0,
-      type: 0,
+      type: -1,
       active: true,
       contentTemplateLinks: [],
-      contentTemplateImages: []
+      contentTemplateImages: [],
     };
   }
 
   private createEmptyLink(contentTemplateId: string): ContentTemplateLink {
     return {
-      id: '',
+      id: this.createClientGuid(),
       contentTemplateId,
-      title: '',
-      subTitle: '',
+      title: '--',
+      subTitle: '--',
       isExternalLink: false,
       navigationTo: '',
-      personId: '',
+      personId: null,
       description: '',
       sortNo: 0,
       active: true,
@@ -206,10 +226,10 @@ export class ContentTemplatesComponent implements OnInit {
 
   private createEmptyImage(contentTemplateId: string): ContentTemplateImage {
     return {
-      id: '',
+      id: this.createClientGuid(),
       contentTemplateId,
-      title: '',
-      subTitle: '',
+      title: '--',
+      subTitle: '--',
       imageName: '',
       imageOriginalName: '',
       description: '',
@@ -220,8 +240,8 @@ export class ContentTemplatesComponent implements OnInit {
 
   private createEmptyMediaLibraryDocument(contentTemplateId: string): MediaLibraryDocument {
     return {
-      id: '',
-      title: '',
+      id: this.createClientGuid(),
+      title: '--',
       description: '',
       filePath: '',
       contentType: '',
@@ -246,8 +266,8 @@ export class ContentTemplatesComponent implements OnInit {
     };
   }
 
-  private normalizeTemplate(template: ContentTemplate): ContentTemplate {
-    const normalizedTemplateId = template.id?.trim() ?? '';
+  private normalizeTemplate(template: ContentTemplate, templateIdOverride?: string): ContentTemplate {
+    const normalizedTemplateId = this.normalizeRootId(templateIdOverride ?? template.id);
 
     return {
       ...template,
@@ -257,16 +277,16 @@ export class ContentTemplatesComponent implements OnInit {
       content: template.content?.trim(),
       contentTemplateLinks: (template.contentTemplateLinks ?? []).map((link) => ({
         ...link,
-        id: link.id?.trim() ?? '',
-        contentTemplateId: link.contentTemplateId?.trim() || normalizedTemplateId,
+        id: this.normalizeChildId(link.id),
+        contentTemplateId: normalizedTemplateId,
         title: link.title?.trim(),
         subTitle: link.subTitle?.trim(),
         navigationTo: link.navigationTo?.trim(),
-        personId: link.personId?.trim(),
+        personId: this.normalizeOptionalGuid(link.personId),
         description: link.description?.trim(),
         mediaLibraryDocuments: (link.mediaLibraryDocuments ?? []).map((document) => ({
           ...document,
-          id: document.id?.trim() ?? '',
+          id: this.normalizeChildId(document.id),
           title: document.title?.trim() ?? '',
           description: document.description?.trim() ?? '',
           filePath: document.filePath?.trim() ?? '',
@@ -276,13 +296,13 @@ export class ContentTemplatesComponent implements OnInit {
           keywordsJson: document.keywordsJson?.trim() ?? '',
           summary: document.summary?.trim() ?? '',
           formatedHtml: document.formatedHtml?.trim() ?? '',
-          contentTemplateLink: document.contentTemplateLink ?? this.createEmptyLink(link.contentTemplateId?.trim() || normalizedTemplateId)
+          contentTemplateLink: this.normalizeDocumentLink(document.contentTemplateLink, normalizedTemplateId)
         }))
       })),
       contentTemplateImages: (template.contentTemplateImages ?? []).map((image) => ({
         ...image,
-        id: image.id?.trim() ?? '',
-        contentTemplateId: image.contentTemplateId?.trim() || normalizedTemplateId,
+        id: this.normalizeChildId(image.id),
+        contentTemplateId: normalizedTemplateId,
         title: image.title?.trim(),
         subTitle: image.subTitle?.trim(),
         imageName: image.imageName?.trim(),
@@ -290,5 +310,107 @@ export class ContentTemplatesComponent implements OnInit {
         description: image.description?.trim()
       }))
     };
+  }
+
+  private normalizeRootId(id?: string): string {
+    const normalizedId = id?.trim() ?? '';
+    return this.isEmptyId(normalizedId) ? '' : normalizedId;
+  }
+
+  private normalizeChildId(id?: string): string {
+    const normalizedId = id?.trim() ?? '';
+    return this.isEmptyId(normalizedId) ? this.createClientGuid() : normalizedId;
+  }
+
+  private normalizeOptionalGuid(id?: string | null): string | null {
+    const normalizedId = id?.trim() ?? '';
+    return this.isEmptyId(normalizedId) ? null : normalizedId;
+  }
+
+  private normalizeDocumentLink(link: ContentTemplateLink | undefined, contentTemplateId: string): ContentTemplateLink {
+    const sourceLink = link ?? this.createEmptyLink(contentTemplateId);
+
+    return {
+      ...sourceLink,
+      id: this.normalizeChildId(sourceLink.id),
+      contentTemplateId,
+      title: sourceLink.title?.trim() ?? '',
+      subTitle: sourceLink.subTitle?.trim() ?? '',
+      navigationTo: sourceLink.navigationTo?.trim() ?? '',
+      personId: this.normalizeOptionalGuid(sourceLink.personId),
+      description: sourceLink.description?.trim() ?? '',
+      mediaLibraryDocuments: []
+    };
+  }
+
+  private isEmptyId(id?: string): boolean {
+    const normalizedId = id?.trim() ?? '';
+    return !normalizedId || normalizedId === this.emptyId;
+  }
+
+  private createClientGuid(): string {
+    const cryptoApi = globalThis.crypto;
+    if (cryptoApi?.randomUUID) {
+      return cryptoApi.randomUUID();
+    }
+
+    // Fallback for environments without randomUUID support.
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+      const random = Math.floor(Math.random() * 16);
+      const value = char === 'x' ? random : (random & 0x3) | 0x8;
+      return value.toString(16);
+    });
+  }
+
+  private buildErrorMessage(defaultMessage: string, error: unknown): string {
+    const detail = this.extractErrorDetail(error);
+    return detail ? `${defaultMessage} ${detail}` : defaultMessage;
+  }
+
+  private extractErrorDetail(error: unknown): string {
+    if (!(error instanceof HttpErrorResponse)) {
+      return '';
+    }
+
+    const payload = error.error as
+      | string
+      | { message?: string; title?: string; detail?: string; errors?: Record<string, string[] | string> }
+      | null
+      | undefined;
+
+    if (typeof payload === 'string') {
+      return payload.trim();
+    }
+
+    if (payload?.message) {
+      return payload.message;
+    }
+
+    if (payload?.errors) {
+      const flattened = Object.entries(payload.errors)
+        .flatMap(([field, entry]) => {
+          const messages = Array.isArray(entry) ? entry : [entry];
+          return messages.map((message) => `${field}: ${`${message}`.trim()}`);
+        })
+        .filter((entry) => !!entry);
+
+      if (flattened.length > 0) {
+        return flattened.join(' | ');
+      }
+    }
+
+    if (payload?.detail) {
+      return payload.detail;
+    }
+
+    if (payload?.title) {
+      return payload.title;
+    }
+
+    if (error.status) {
+      return `HTTP ${error.status}`;
+    }
+
+    return '';
   }
 }

@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 export class ContentTemplateService {
   private readonly baseUrl = `${environment.apiUrl}/ContentTemplates`;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) { }
 
   getContentTemplates(): Observable<ContentTemplate[]> {
     return this.http.get<ContentTemplate[]>(this.baseUrl);
@@ -18,12 +18,16 @@ export class ContentTemplateService {
     return this.http.get<ContentTemplate>(`${this.baseUrl}/${encodeURIComponent(id)}`);
   }
 
+  getEmptyContentTemplate(): Observable<ContentTemplate> {
+    return this.http.get<ContentTemplate>(`${this.baseUrl}/getEmptyContentTemplate`, {});
+  }
+
   createContentTemplate(template: ContentTemplate): Observable<ContentTemplate> {
     return this.http.post<ContentTemplate>(this.baseUrl, template);
   }
 
   updateContentTemplate(id: string, template: ContentTemplate): Observable<ContentTemplate> {
-    return this.http.put<ContentTemplate>(`${this.baseUrl}/${encodeURIComponent(id)}`, template);
+    return this.http.put<ContentTemplate>(`${this.baseUrl}/updateContentTemplate/${encodeURIComponent(id)}`, template);
   }
 
   deleteContentTemplate(id: string): Observable<void> {

@@ -40,36 +40,37 @@ export interface ForgotPasswordRequest {
 export interface ContentTemplate {
     id: string;
     refContentTemplateId?: number;
-    title?: string;
-    subTitle?: string;
-    content?: string;
+    title: string;
+    subTitle: string;
+    content: string;
     sortNo: number;
     type: number;
     active: boolean;
-    contentTemplateLinks: ContentTemplateLink[];
+    contentTemplateLinks: ContentTemplateLink[] ;
     contentTemplateImages: ContentTemplateImage[];
 }
 
 export interface ContentTemplateImage {
     id: string;
     contentTemplateId: string;
-    title?: string;
-    subTitle?: string;
-    imageName?: string;
-    imageOriginalName?: string;
-    description?: string;
-    sortNo?: number;
+    title: string;
+    subTitle: string;
+    imageName: string;
+    imageOriginalName: string;
+    description: string;
+    sortNo: number;
     active: boolean;
 }
 
 export interface ContentTemplateLink {
     id: string;
     contentTemplateId: string;
-    title?: string; subTitle?: string;
+    title: string; 
+    subTitle: string;
     isExternalLink: boolean;
-    navigationTo?: string;
-    personId?: string;
-    description?: string;
+    navigationTo: string;
+    personId: string | null;
+    description: string;
     sortNo: number;
     active: boolean;
     mediaLibraryDocuments: MediaLibraryDocument[];

@@ -108,25 +108,33 @@
                 <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeLink(i)">Entfernen</button>
               </div>
               <div class="row g-2">
-                <div class="col-12 col-md-6">
+                <!-- <div class="col-12 col-md-6">
+                   <label class="form-label">Id</label>
                   <input class="form-control" placeholder="ID" [(ngModel)]="link.id" [name]="'link-id-' + i" />
                 </div>
                 <div class="col-12 col-md-6">
+                  <label class="form-label">ContentTemplateId</label>
                   <input class="form-control" placeholder="ContentTemplateId" [(ngModel)]="link.contentTemplateId" [name]="'link-template-id-' + i" />
-                </div>
+                </div> -->
                 <div class="col-12 col-md-6">
+                  <label class="form-label">Titel</label>
+
                   <input class="form-control" placeholder="Titel" [(ngModel)]="link.title" [name]="'link-title-' + i" />
                 </div>
                 <div class="col-12 col-md-6">
+                  <label class="form-label">Untertitel</label>
                   <input class="form-control" placeholder="Untertitel" [(ngModel)]="link.subTitle" [name]="'link-subtitle-' + i" />
                 </div>
                 <div class="col-12 col-md-6">
+                  <label class="form-label">Navigation</label>
                   <input class="form-control" placeholder="Navigation" [(ngModel)]="link.navigationTo" [name]="'link-navigation-' + i" />
                 </div>
                 <div class="col-12 col-md-6">
+                  <label class="form-label">PersonId</label>
                   <input class="form-control" placeholder="PersonId" [(ngModel)]="link.personId" [name]="'link-person-' + i" />
                 </div>
                 <div class="col-12 col-md-6">
+                  <label class="form-label">SortNo</label>
                   <input class="form-control" type="number" placeholder="SortNo" [(ngModel)]="link.sortNo" [name]="'link-sort-' + i" />
                 </div>
                 <div class="col-12 col-md-6 d-flex align-items-center gap-3">
@@ -140,6 +148,7 @@
                   </div>
                 </div>
                 <div class="col-12">
+                    <label class="form-label">Beschreibung</label>
                   <textarea class="form-control" rows="2" placeholder="Beschreibung" [(ngModel)]="link.description" [name]="'link-description-' + i"></textarea>
                 </div>
               </div>
