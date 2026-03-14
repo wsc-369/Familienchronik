@@ -37,6 +37,42 @@ export interface ForgotPasswordRequest {
     email: string;
 }
 
+export enum TemplateTypes {
+    undefined = -1,
+    club = 10,
+    restaurant = 20,
+    theatricalLife = 30,
+    shop = 40,
+    excusion = 50,
+    mediatek = 60,
+    whoIsInThePhoto = 70,
+    mainPageSlide = 80,
+    clubAhnenforschung = 90,
+    stammNamen = 100,
+    themaOverview = 110,
+    personenPortrait = 120
+}
+
+const templateTypeLabels: Record<TemplateTypes, string> = {
+    [TemplateTypes.undefined]:          '-- Nicht definiert --',
+    [TemplateTypes.club]:               'Verein',
+    [TemplateTypes.restaurant]:         'Restaurant',
+    [TemplateTypes.theatricalLife]:     'Theaterleben',
+    [TemplateTypes.shop]:               'Geschäft',
+    [TemplateTypes.excusion]:           'Ausflug',
+    [TemplateTypes.mediatek]:           'Mediathek',
+    [TemplateTypes.whoIsInThePhoto]:    'Wer ist auf dem Foto',
+    [TemplateTypes.mainPageSlide]:      'Hauptseite Slide',
+    [TemplateTypes.clubAhnenforschung]: 'Verein Ahnenforschung',
+    [TemplateTypes.stammNamen]:         'Stammnamen',
+    [TemplateTypes.themaOverview]:      'Thema Übersicht',
+    [TemplateTypes.personenPortrait]:   'Personenporträt',
+};
+
+export function translateTemplateType(type: TemplateTypes): string {
+    return templateTypeLabels[type] ?? '-- Unbekannt --';
+}
+
 export interface ContentTemplate {
     id: string;
     refContentTemplateId?: number;
@@ -44,7 +80,7 @@ export interface ContentTemplate {
     subTitle: string;
     content: string;
     sortNo: number;
-    type: number;
+    type: number | null;
     active: boolean;
     contentTemplateLinks: ContentTemplateLink[] ;
     contentTemplateImages: ContentTemplateImage[];

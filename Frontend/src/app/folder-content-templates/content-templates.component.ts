@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
-import { ContentTemplate, ContentTemplateImage, ContentTemplateLink, MediaLibraryDocument } from '../api/api-interfaces';
+import { ContentTemplate, ContentTemplateImage, ContentTemplateLink, MediaLibraryDocument, TemplateTypes, translateTemplateType } from '../api/api-interfaces';
 import { ContentTemplateService } from '../folder-services/content-template.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-content-templates',
@@ -13,8 +14,14 @@ import { ContentTemplateService } from '../folder-services/content-template.serv
   templateUrl: './content-templates.component.html',
   styleUrls: ['./content-templates.component.css']
 })
-export class ContentTemplatesComponent implements OnInit {
+export class ContentTemplatesComponent implements OnInit, OnDestroy {
+
+  readonly templateTypeOptions = Object.entries(TemplateTypes)
+    .filter(([, v]) => typeof v === 'number' && (v as number) !== TemplateTypes.undefined)
+    .map(([, value]) => ({ label: translateTemplateType(value as TemplateTypes), value: value as number }));
+
   private readonly emptyId = '00000000-0000-0000-0000-000000000000';
+  private readonly imageBaseUrl = environment.apiUrl.replace('/api', '');
 
   contentTemplates: ContentTemplate[] = [];
   selectedTemplate: ContentTemplate = this.createEmptyTemplate();
@@ -22,11 +29,135 @@ export class ContentTemplatesComponent implements OnInit {
   isSaving = false;
   errorMessage = '';
   successMessage = '';
+  uploadingDocumentId: string | null = null;
+  uploadingImageId: string | null = null;
+  imagePreviewUrls: Record<string, string> = {};
+  pendingDocumentFiles: Record<string, File> = {};
+  pendingImageFiles: Record<string, File> = {};
 
   constructor(private readonly contentTemplateService: ContentTemplateService) { }
 
   ngOnInit(): void {
     this.loadContentTemplates();
+  }
+
+  ngOnDestroy(): void {
+    Object.values(this.imagePreviewUrls).forEach((url) => URL.revokeObjectURL(url));
+  }
+
+  onImageFileSelected(imageIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const image = this.selectedTemplate.contentTemplateImages[imageIndex];
+    if (!image) {
+      return;
+    }
+
+    const localUrl = URL.createObjectURL(file);
+    if (this.imagePreviewUrls[image.id]) {
+      URL.revokeObjectURL(this.imagePreviewUrls[image.id]);
+    }
+    this.imagePreviewUrls[image.id] = localUrl;
+
+    this.pendingImageFiles[image.id] = file;
+  }
+
+  uploadSelectedImage(imageIndex: number): void {
+    const image = this.selectedTemplate.contentTemplateImages[imageIndex];
+    if (!image) {
+      return;
+    }
+
+    const file = this.pendingImageFiles[image.id];
+    if (!file) {
+      return;
+    }
+
+    this.uploadingImageId = image.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.contentTemplateService.uploadContentTemplateImage(image.id, file)
+      .pipe(finalize(() => { this.uploadingImageId = null; }))
+      .subscribe({
+        next: (result) => {
+          image.imageName = result.imageName;
+          image.imageOriginalName = file.name;
+          delete this.pendingImageFiles[image.id];
+          this.successMessage = 'Bild wurde hochgeladen.';
+        },
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('Bild konnte nicht hochgeladen werden.', error);
+        }
+      });
+  }
+
+  getImagePreviewUrl(image: ContentTemplateImage): string | null {
+    return this.imagePreviewUrls[image.id]
+      ?? (image.imageName ? `${this.imageBaseUrl}/images/${image.imageName}` : null);
+  }
+
+  onDocumentFileSelected(linkIndex: number, documentIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const link = this.selectedTemplate.contentTemplateLinks[linkIndex];
+    const document = link?.mediaLibraryDocuments?.[documentIndex];
+    if (!document) {
+      return;
+    }
+
+    this.pendingDocumentFiles[document.id] = file;
+  }
+
+  uploadSelectedDocument(linkIndex: number, documentIndex: number): void {
+    const link = this.selectedTemplate.contentTemplateLinks[linkIndex];
+    const document = link?.mediaLibraryDocuments?.[documentIndex];
+    if (!document) {
+      return;
+    }
+
+    const file = this.pendingDocumentFiles[document.id];
+    if (!file) {
+      return;
+    }
+
+    this.uploadingDocumentId = document.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.contentTemplateService.uploadContentTemplateDocument(document.id, file)
+      .pipe(finalize(() => {
+        this.uploadingDocumentId = null;
+      }))
+      .subscribe({
+        next: (result) => {
+          document.filePath = result.filePath?.trim() || file.name;
+          document.contentType = result.contentType?.trim() || file.type || document.contentType;
+          document.title = result.title?.trim() || document.title || file.name;
+          document.keywords = document.keywords || file.name;
+          delete this.pendingDocumentFiles[document.id];
+          this.successMessage = 'Dokument wurde hochgeladen.';
+        },
+        error: (error) => {
+          this.errorMessage = this.buildErrorMessage('Dokument konnte nicht hochgeladen werden.', error);
+        }
+      });
+  }
+
+  getPendingDocumentFileName(document: MediaLibraryDocument): string {
+    return this.pendingDocumentFiles[document.id]?.name ?? '';
+  }
+
+  getPendingImageFileName(image: ContentTemplateImage): string {
+    return this.pendingImageFiles[image.id]?.name ?? '';
   }
 
   trackByTemplateId(_: number, item: ContentTemplate): string {
@@ -285,7 +416,7 @@ export class ContentTemplatesComponent implements OnInit {
       subTitle: '',
       content: '',
       sortNo: 0,
-      type: -1,
+      type: null,
       active: true,
       contentTemplateLinks: [],
       contentTemplateImages: [],

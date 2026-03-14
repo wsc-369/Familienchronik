@@ -382,6 +382,193 @@ namespace appAhnenforschungBackEnd.Controllers
       }
     }
 
+    /// <summary>
+    /// Upload an image for a content template image
+    /// </summary>
+    //[Authorize(Roles = "EditAdress, EditMainPage, Admin")]
+    [HttpPost("uploadImage"), DisableRequestSizeLimit]
+    public async Task<IActionResult> UploadImage()
+    {
+      try
+      {
+        var file = Request.Form.Files.FirstOrDefault(f => f.Name == "file");
+        var idString = Request.Form["id"].FirstOrDefault();
+
+        if (file == null || string.IsNullOrEmpty(idString))
+        {
+          return BadRequest("File and ID are required");
+        }
+
+        if (!Guid.TryParse(idString, out Guid imageId))
+        {
+          return BadRequest("Invalid ID format");
+        }
+
+        if (file.Length == 0)
+        {
+          return BadRequest("File is empty");
+        }
+
+        var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName?.Trim('"');
+        if (string.IsNullOrEmpty(fileName))
+        {
+          return BadRequest("Invalid file name");
+        }
+
+        var originalName = fileName;
+        var extension = Path.GetExtension(fileName);
+        var newFileName = Guid.NewGuid().ToString() + extension;
+
+        // Get the image entity to determine the folder structure
+        var image = await _readWirteContents.GetSingleContentTemplateImage(imageId);
+        if (image == null || image.Id == Guid.Empty)
+        {
+          return NotFound($"Content template image with ID {imageId} not found");
+        }
+
+        var contentTemplate = await _readWirteContents.GetSingleContentTemplate(image.ContentTemplateId);
+        if (contentTemplate == null || contentTemplate.Id == Guid.Empty)
+        {
+          return NotFound($"Content template not found");
+        }
+
+        // Create folder structure
+        var folderName = Path.Combine("resources", "images");
+        var imagesHelper = new ImagesHelper();
+        // Convert TemplateTypes to ETemplateTypes by casting the integer value
+        folderName = imagesHelper.GetFolderName(folderName, (CContentTemplate.ETemplateTypes)(int)contentTemplate.Type);
+        var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+        var strImagePathOriginal = Path.Combine(pathToSave, CImages.EFileDirectory.original.ToString());
+        var strImagePathLarge = Path.Combine(pathToSave, CImages.EFileDirectory.large.ToString());
+        var strImageFileSmall = Path.Combine(pathToSave, CImages.EFileDirectory.small.ToString());
+        var strImagePathThumb = Path.Combine(pathToSave, CImages.EFileDirectory.thumb.ToString());
+
+        imagesHelper.CreateDirectories(pathToSave, strImagePathOriginal, strImagePathLarge, strImageFileSmall, strImagePathThumb);
+
+        // Save the original file
+        var fullPathOriginal = Path.Combine(strImagePathOriginal, newFileName);
+        var fullPathLarge = Path.Combine(strImagePathLarge, newFileName);
+        var fullPathSmall = Path.Combine(strImageFileSmall, newFileName);
+        var fullPathThumb = Path.Combine(strImagePathThumb, newFileName);
+
+        using (var stream = new FileStream(fullPathOriginal, FileMode.Create))
+        {
+          await file.CopyToAsync(stream);
+        }
+
+        // Create resized versions
+        imagesHelper.Resize(fullPathOriginal, fullPathLarge, fullPathSmall, fullPathThumb);
+
+        // Update the image entity
+        image.ImageOriginalName = originalName;
+        image.ImageName = newFileName;
+        await _readWirteContents.AddOrUpdatetContentTemplateImage(image);
+
+        return Ok(new { imageName = newFileName });
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error uploading image");
+        return StatusCode(500, "An error occurred while uploading the image");
+      }
+    }
+
+    /// <summary>
+    /// Upload a document for a media library document
+    /// </summary>
+    //[Authorize(Roles = "EditAdress, EditMainPage, Admin")]
+    [HttpPost("uploadDocument"), DisableRequestSizeLimit]
+    public async Task<IActionResult> UploadDocument()
+    {
+      try
+      {
+        var file = Request.Form.Files.FirstOrDefault(f => f.Name == "file");
+        var idString = Request.Form["id"].FirstOrDefault();
+
+        if (file == null || string.IsNullOrEmpty(idString))
+        {
+          return BadRequest("File and ID are required");
+        }
+
+        if (!Guid.TryParse(idString, out Guid documentId))
+        {
+          return BadRequest("Invalid ID format");
+        }
+
+        if (file.Length == 0)
+        {
+          return BadRequest("File is empty");
+        }
+
+        var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName?.Trim('"');
+        if (string.IsNullOrEmpty(fileName))
+        {
+          return BadRequest("Invalid file name");
+        }
+
+        var originalName = fileName;
+        var extension = Path.GetExtension(fileName);
+        var newFileName = Guid.NewGuid().ToString() + extension;
+        var contentType = file.ContentType;
+
+        // Get the media library document
+        var document = await _readWirteContents.GetSingleMediaLibraryDocument(documentId);
+        if (document == null || document.Id == Guid.Empty)
+        {
+          return NotFound($"Media library document with ID {documentId} not found");
+        }
+
+        // Create folder structure for documents
+        var folderName = Path.Combine("resources", "documents");
+        var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+        // Ensure directory exists
+        if (!Directory.Exists(pathToSave))
+        {
+          Directory.CreateDirectory(pathToSave);
+        }
+
+        // Save the file
+        var fullPath = Path.Combine(pathToSave, newFileName);
+        using (var stream = new FileStream(fullPath, FileMode.Create))
+        {
+          await file.CopyToAsync(stream);
+        }
+
+        // Update the document entity
+        document.FilePath = Path.Combine(folderName, newFileName);
+        document.ContentType = contentType;
+        
+        // Extract text if it's a PDF or text document
+        string extractedText = string.Empty;
+        if (contentType == "application/pdf" || contentType == "text/plain")
+        {
+          // TODO: Implement text extraction logic
+          // You might want to use a library like iTextSharp or PdfPig for PDF extraction
+          extractedText = "Text extraction not yet implemented";
+        }
+        document.ExtractedText = extractedText;
+
+        await _readWirteContents.AddOrUpdatetMediaLibraryDocument(document);
+
+        return Ok(new 
+        { 
+          fileName = newFileName,
+          originalFileName = originalName,
+          filePath = document.FilePath,
+          contentType = contentType,
+          fileSize = file.Length,
+          extractedText = extractedText
+        });
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error uploading document");
+        return StatusCode(500, "An error occurred while uploading the document");
+      }
+    }
+
     //// PUT: api/Employees/5
     //[HttpPut("{id}")]
     //public async Task<IActionResult> PutRemark([FromRoute] int id, [FromBody] CRemark remark)

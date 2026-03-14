@@ -71,7 +71,7 @@ namespace appAhnenforschungBackEnd.DataManager
 
     [Flags]
     public enum ImagePersonState { None = 0, IsActive = 1, InProgress = 2, IsArchivated = 4, IsExported = 8 }
-    public enum TemplateTypes { undefind = -1, club = 10, restaurant = 20, theatricalLife = 30, shop = 40, excusion = 50, mediatek = 60, whoIsInThePhoto = 70, mainPageSlide = 80, clubAhnenforschung = 90, stammNamen = 100, themaOverview = 110 };
+    public enum TemplateTypes { undefind = -1, club = 10, restaurant = 20, theatricalLife = 30, shop = 40, excusion = 50, mediatek = 60, whoIsInThePhoto = 70, mainPageSlide = 80, clubAhnenforschung = 90, stammNamen = 100, themaOverview = 110, personenPortrait = 120 };
 
     [Flags]
     public enum AppUserRoles { None = 0, Mitglied = 1, EditAdress = 2, EditMainPage = 4, EditDialect = 8, EditPortrait = 16, EditPerson = 32, EditAppUser = 64, Administrator = 128 }

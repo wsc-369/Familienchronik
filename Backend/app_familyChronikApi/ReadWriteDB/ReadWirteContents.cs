@@ -29,7 +29,7 @@ namespace app_familyChronikApi.ReadWriteDB
       {
         //var entityLinkss = await GetSingleContentTemplateLink _context.ContentTemplates.ToListAsync();
         var obj = new ValueObject.ContentTemplate();
-        this.MapEntityToContentTemplate(entity, obj);
+        MapEntityToContentTemplate(entity, obj);
 
         obj.ContentTemplateLinks = (List<ValueObject.ContentTemplateLink>)await GetContentTemplateLinks(entity.Id);
         foreach (ValueObject.ContentTemplateLink link in obj.ContentTemplateLinks)
@@ -49,7 +49,7 @@ namespace app_familyChronikApi.ReadWriteDB
       var obj = new ValueObject.ContentTemplate();
       obj.ContentTemplateLinks = (List<ValueObject.ContentTemplateLink>)await GetContentTemplateLinks(entity.Id);
       obj.ContentTemplateImages = (List<ValueObject.ContentTemplateImage>)await GetContentTemplateImageByContentTemplateId(entity.Id);
-      this.MapEntityToContentTemplate(entity, obj);
+      MapEntityToContentTemplate(entity, obj);
 
       return obj;
     }
@@ -59,7 +59,7 @@ namespace app_familyChronikApi.ReadWriteDB
       var entity = await _context.ContentTemplateImages.FirstOrDefaultAsync(x => x.Id == id);
 
       var obj = new ValueObject.ContentTemplateImage();
-      this.MapEntityToContentTemplateImage(entity, obj);
+      MapEntityToContentTemplateImage(entity, obj);
 
       return obj;
     }
@@ -72,16 +72,16 @@ namespace app_familyChronikApi.ReadWriteDB
         foreach (var entity in _context.ContentTemplates.Where(x => x.Type == (TemplateTypes)type))
         {
           var template = new ValueObject.ContentTemplate();
-          this.MapEntityToContentTemplate(entity, template);
+          MapEntityToContentTemplate(entity, template);
 
           foreach (var entityLink in _context.ContentTemplateLinks.Where(x => x.ContentTemplateId == entity.Id))
           {
             var link = new ValueObject.ContentTemplateLink();
-            this.MapEntityToContentTemplateLink(entityLink, link);
+            MapEntityToContentTemplateLink(entityLink, link);
             foreach (var entityMediaLibraryDocument in _context.MediaLibraryDocuments.Where(x => x.ContentTemplateLink == entityLink))
             {
               var mediaLibraryDocument = new ValueObject.MediaLibraryDocument();
-              this.MapEntityToMediaLibraryDocument(entityMediaLibraryDocument, mediaLibraryDocument);
+              MapEntityToMediaLibraryDocument(entityMediaLibraryDocument, mediaLibraryDocument);
               link.MediaLibraryDocuments.Add(mediaLibraryDocument);
             }
 
@@ -92,7 +92,7 @@ namespace app_familyChronikApi.ReadWriteDB
           foreach (var entityImage in _context.ContentTemplateImages.Where(x => x.ContentTemplateId == entity.Id))
           {
             var image = new ValueObject.ContentTemplateImage();
-            this.MapEntityToContentTemplateImage(entityImage, image);
+            MapEntityToContentTemplateImage(entityImage, image);
             template.ContentTemplateImages.Add(image);
           }
           templates.Add(template);
@@ -448,20 +448,32 @@ namespace app_familyChronikApi.ReadWriteDB
     {
       try
       {
-        var entityLink = await _context.ContentTemplateLinks.FirstOrDefaultAsync(x => x.ContentTemplateId == id);
+        var entityLink = await _context.ContentTemplateLinks.FirstOrDefaultAsync(x => x.Id == id);
         // TODO: delete Media dok
         if (entityLink != null)
         {
           _context.ContentTemplateLinks.Remove(entityLink);
         }
 
+        if(entityLink != null && entityLink.Id != null)
+        {
+          var entityMedias = await _context.MediaLibraryDocuments.Where(x => x.ContentTemplateLink.Id == entityLink.Id).ToListAsync();
 
-        var entityImages = await _context.ContentTemplateImages.Where(x => x.ContentTemplateId == id).ToListAsync();
+          if (entityMedias != null)
+          {
+            _context.MediaLibraryDocuments.RemoveRange(entityMedias);
+          }
+        }
+       
+
+        var entityImages = await _context.ContentTemplateImages.Where(x => x.Id == id).ToListAsync();
 
         if (entityImages != null)
         {
           _context.ContentTemplateImages.RemoveRange(entityImages);
         }
+
+
 
         await _context.SaveChangesAsync();
 
@@ -479,7 +491,7 @@ namespace app_familyChronikApi.ReadWriteDB
     {
       try
       {
-        var entityImage = await _context.ContentTemplateImages.FirstOrDefaultAsync(x => x.ContentTemplateId == id);
+        var entityImage = await _context.ContentTemplateImages.FirstOrDefaultAsync(x => x.Id == id);
 
         if (entityImage != null)
         {

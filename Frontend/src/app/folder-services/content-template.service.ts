@@ -4,6 +4,13 @@ import { Observable } from 'rxjs';
 import { ContentTemplate } from '../api/api-interfaces';
 import { environment } from '../../environments/environment';
 
+interface UploadDocumentResponse {
+  filePath?: string;
+  fileName?: string;
+  contentType?: string;
+  title?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ContentTemplateService {
   private readonly baseUrl = `${environment.apiUrl}/ContentTemplates`;
@@ -46,5 +53,18 @@ export class ContentTemplateService {
     return this.http.delete<void>(`${this.baseUrl}/deleteContentMediaLibraryDocument/${encodeURIComponent(id)}`);
   }
 
+  uploadContentTemplateImage(id: string, file: File): Observable<{ imageName: string }> {
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('file', file);
+    return this.http.post<{ imageName: string }>(`${this.baseUrl}/uploadImage`, formData);
+  }
+
+  uploadContentTemplateDocument(id: string, file: File): Observable<UploadDocumentResponse> {
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('file', file);
+    return this.http.post<UploadDocumentResponse>(`${this.baseUrl}/uploadDocument`, formData);
+  }
 
 }

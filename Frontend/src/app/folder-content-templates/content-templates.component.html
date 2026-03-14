@@ -45,11 +45,11 @@
     </div>
 
     <div class="col-12 col-lg-8">
-      <form class="card shadow-sm" (ngSubmit)="onSaveTemplate()">
+      <form class="card shadow-sm" #templateForm="ngForm" (ngSubmit)="onSaveTemplate()">
         <div class="card-header d-flex justify-content-between align-items-center">
           <strong>{{ selectedTemplate.id ? 'Template bearbeiten' : 'Neues Template' }}</strong>
           <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success btn-sm" [disabled]="isSaving">Speichern</button>
+            <button type="submit" class="btn btn-success btn-sm" [disabled]="isSaving || templateForm.invalid">Speichern</button>
             <button type="button" class="btn btn-outline-danger btn-sm" (click)="onDeleteTemplate()" [disabled]="isSaving || !selectedTemplate.id">
               Loeschen
             </button>
@@ -60,7 +60,7 @@
           <div class="row g-3 mb-3">
             <div class="col-12 col-md-6">
               <label class="form-label">ID</label>
-              <input class="form-control" [(ngModel)]="selectedTemplate.id" name="id" placeholder="wird beim Anlegen automatisch gesetzt" />
+              <input class="form-control" [(ngModel)]="selectedTemplate.id" name="id" readonly placeholder="wird beim Anlegen automatisch gesetzt" />
             </div>
             <div class="col-12 col-md-6">
               <label class="form-label">RefContentTemplateId</label>
@@ -68,15 +68,27 @@
             </div>
             <div class="col-12 col-md-6">
               <label class="form-label">Titel</label>
-              <input class="form-control" [(ngModel)]="selectedTemplate.title" name="title" />
+              <input class="form-control" [class.is-invalid]="titleField.invalid && (titleField.dirty || titleField.touched)"
+                required [(ngModel)]="selectedTemplate.title" name="title" #titleField="ngModel" />
+              @if (titleField.invalid && (titleField.dirty || titleField.touched)) {
+                <div class="invalid-feedback">Titel ist erforderlich.</div>
+              }
             </div>
             <div class="col-12 col-md-6">
               <label class="form-label">Untertitel</label>
-              <input class="form-control" [(ngModel)]="selectedTemplate.subTitle" name="subTitle" />
+              <input class="form-control" [class.is-invalid]="subTitleField.invalid && (subTitleField.dirty || subTitleField.touched)"
+                required [(ngModel)]="selectedTemplate.subTitle" name="subTitle" #subTitleField="ngModel" />
+              @if (subTitleField.invalid && (subTitleField.dirty || subTitleField.touched)) {
+                <div class="invalid-feedback">Untertitel ist erforderlich.</div>
+              }
             </div>
             <div class="col-12">
               <label class="form-label">Content</label>
-              <textarea class="form-control" rows="4" [(ngModel)]="selectedTemplate.content" name="content"></textarea>
+              <textarea class="form-control" [class.is-invalid]="contentField.invalid && (contentField.dirty || contentField.touched)"
+                required rows="4" [(ngModel)]="selectedTemplate.content" name="content" #contentField="ngModel"></textarea>
+              @if (contentField.invalid && (contentField.dirty || contentField.touched)) {
+                <div class="invalid-feedback">Content ist erforderlich.</div>
+              }
             </div>
             <div class="col-6 col-md-3">
               <label class="form-label">SortNo</label>
@@ -84,7 +96,16 @@
             </div>
             <div class="col-6 col-md-3">
               <label class="form-label">Type</label>
-              <input class="form-control" type="number" [(ngModel)]="selectedTemplate.type" name="type" />
+              <select class="form-select" [class.is-invalid]="typeField.invalid && (typeField.dirty || typeField.touched)"
+                required [(ngModel)]="selectedTemplate.type" name="type" #typeField="ngModel">
+                <option [ngValue]="null" disabled>-- Bitte wählen --</option>
+                @for (opt of templateTypeOptions; track opt.value) {
+                  <option [ngValue]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+              @if (typeField.invalid && (typeField.dirty || typeField.touched)) {
+                <div class="invalid-feedback">Type ist erforderlich.</div>
+              }
             </div>
             <div class="col-12 col-md-3 d-flex align-items-end">
               <div class="form-check">
@@ -97,7 +118,7 @@
           <hr />
 
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0">ContentTemplateLinks</h5>
+            <h5 class="mb-0">Links</h5>
             <button type="button" class="btn btn-outline-primary btn-sm" (click)="addLink()">Link hinzufuegen</button>
           </div>
 
@@ -108,22 +129,30 @@
                 <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeLink(i)">Entfernen</button>
               </div>
               <div class="row g-2">
-                <!-- <div class="col-12 col-md-6">
+                 <div class="col-12 col-md-6">
                    <label class="form-label">Id</label>
                   <input class="form-control" placeholder="ID" [(ngModel)]="link.id" [name]="'link-id-' + i" />
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label">ContentTemplateId</label>
                   <input class="form-control" placeholder="ContentTemplateId" [(ngModel)]="link.contentTemplateId" [name]="'link-template-id-' + i" />
-                </div> -->
+                </div> 
                 <div class="col-12 col-md-6">
                   <label class="form-label">Titel</label>
 
-                  <input class="form-control" placeholder="Titel" [(ngModel)]="link.title" [name]="'link-title-' + i" />
+                  <input class="form-control" [class.is-invalid]="titleField.invalid && (titleField.dirty || titleField.touched)"
+                    required [(ngModel)]="link.title" [name]="'link-title-' + i" #titleField="ngModel" />
+                  @if (titleField.invalid && (titleField.dirty || titleField.touched)) {
+                    <div class="invalid-feedback">Titel ist erforderlich.</div>
+                  }
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label">Untertitel</label>
-                  <input class="form-control" placeholder="Untertitel" [(ngModel)]="link.subTitle" [name]="'link-subtitle-' + i" />
+                  <input class="form-control" [class.is-invalid]="subTitleField.invalid && (subTitleField.dirty || subTitleField.touched)"
+                    required [(ngModel)]="link.subTitle" [name]="'link-subtitle-' + i" #subTitleField="ngModel" />
+                  @if (subTitleField.invalid && (subTitleField.dirty || subTitleField.touched)) {
+                    <div class="invalid-feedback">Untertitel ist erforderlich.</div>
+                  }
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label">Navigation</label>
@@ -156,7 +185,7 @@
               <hr class="my-3" />
 
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <strong>MediaLibraryDocuments</strong>
+                <strong>Mediathek-Documents</strong>
                 <button type="button" class="btn btn-outline-primary btn-sm" (click)="addMediaLibraryDocument(i)">Dokument hinzufuegen</button>
               </div>
 
@@ -172,10 +201,18 @@
                       <input class="form-control" placeholder="ID" [(ngModel)]="document.id" [name]="'doc-id-' + i + '-' + j" />
                     </div>
                     <div class="col-12 col-md-6">
-                      <input class="form-control" placeholder="Titel" [(ngModel)]="document.title" [name]="'doc-title-' + i + '-' + j" />
+                      <input class="form-control" [class.is-invalid]="titleField.invalid && (titleField.dirty || titleField.touched)"
+                        required [(ngModel)]="document.title" [name]="'doc-title-' + i + '-' + j" #titleField="ngModel" />
+                      @if (titleField.invalid && (titleField.dirty || titleField.touched)) {
+                        <div class="invalid-feedback">Titel ist erforderlich.</div>
+                      }
                     </div>
                     <div class="col-12 col-md-6">
-                      <input class="form-control" placeholder="Dateipfad" [(ngModel)]="document.filePath" [name]="'doc-filepath-' + i + '-' + j" />
+                      <input class="form-control" [class.is-invalid]="filePathField.invalid && (filePathField.dirty || filePathField.touched)"
+                        required [(ngModel)]="document.filePath" [name]="'doc-filepath-' + i + '-' + j" #filePathField="ngModel" placeholder="Dateipfad" />
+                      @if (filePathField.invalid && (filePathField.dirty || filePathField.touched)) {
+                        <div class="invalid-feedback">Dateipfad ist erforderlich.</div>
+                      }
                     </div>
                     <div class="col-12 col-md-6">
                       <input class="form-control" placeholder="ContentType" [(ngModel)]="document.contentType" [name]="'doc-contenttype-' + i + '-' + j" />
@@ -204,6 +241,28 @@
                         <label class="form-check-label" [for]="'doc-active-' + i + '-' + j">Aktiv</label>
                       </div>
                     </div>
+                    <div class="col-12">
+                      <label class="form-label">Dokument hochladen</label>
+                      <div class="d-flex gap-2 align-items-start">
+                        <input type="file" class="form-control"
+                          [name]="'doc-file-' + i + '-' + j"
+                          (change)="onDocumentFileSelected(i, j, $event)"
+                          [disabled]="uploadingDocumentId === document.id" />
+                        <button type="button" class="btn btn-outline-primary"
+                          (click)="uploadSelectedDocument(i, j)"
+                          [disabled]="uploadingDocumentId === document.id || !getPendingDocumentFileName(document)">
+                          Upload
+                        </button>
+                      </div>
+                      @if (getPendingDocumentFileName(document)) {
+                        <div class="mt-1 text-muted small">Ausgewählt: {{ getPendingDocumentFileName(document) }}</div>
+                      }
+                      @if (uploadingDocumentId === document.id) {
+                        <div class="mt-1 text-muted small">
+                          <span class="spinner-border spinner-border-sm me-1" role="status"></span>Wird hochgeladen...
+                        </div>
+                      }
+                    </div>
                   </div>
                 </div>
               } @empty {
@@ -217,7 +276,7 @@
           <hr />
 
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0">ContentTemplateImages</h5>
+            <h5 class="mb-0">Bilder</h5>
             <button type="button" class="btn btn-outline-primary btn-sm" (click)="addImage()">Bild hinzufuegen</button>
           </div>
 
@@ -257,6 +316,34 @@
                 </div>
                 <div class="col-12">
                   <textarea class="form-control" rows="2" placeholder="Beschreibung" [(ngModel)]="image.description" [name]="'image-description-' + i"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Bild hochladen</label>
+                  <div class="d-flex gap-2 align-items-start">
+                    <input type="file" class="form-control" accept="image/*"
+                      [name]="'image-file-' + i"
+                      (change)="onImageFileSelected(i, $event)"
+                      [disabled]="uploadingImageId === image.id" />
+                    <button type="button" class="btn btn-outline-primary"
+                      (click)="uploadSelectedImage(i)"
+                      [disabled]="uploadingImageId === image.id || !getPendingImageFileName(image)">
+                      Upload
+                    </button>
+                  </div>
+                  @if (getPendingImageFileName(image)) {
+                    <div class="mt-1 text-muted small">Ausgewählt: {{ getPendingImageFileName(image) }}</div>
+                  }
+                  @if (uploadingImageId === image.id) {
+                    <div class="mt-1 text-muted small">
+                      <span class="spinner-border spinner-border-sm me-1" role="status"></span>Wird hochgeladen...
+                    </div>
+                  }
+                  @if (getImagePreviewUrl(image)) {
+                    <div class="mt-2">
+                      <img [src]="getImagePreviewUrl(image)" class="img-thumbnail" style="max-height: 140px;" [alt]="image.title" />
+                      <small class="d-block text-muted mt-1">{{ image.imageOriginalName || image.imageName }}</small>
+                    </div>
+                  }
                 </div>
               </div>
             </div>
